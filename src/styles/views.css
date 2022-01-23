@@ -1,0 +1,133 @@
+div.view-container {
+  width: calc(100vw - 280px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-grow: 1;
+}
+
+div.view-content {
+  background-color: #f7f9fd;
+  width: 100%;
+  max-width: 100%;
+  flex-grow: 1;
+  border-radius: 16px 0 0 0;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: calc(100vh - 96px);
+  overflow: auto;
+  position: relative;
+}
+
+div.overflow-padding-bottom {
+  width: 1136px;
+  height: 50px;
+  position: absolute;
+  bottom: 0;
+  background: linear-gradient(to bottom, #f7f9fd00, #f7f9fd);
+}
+
+div.overflow-padding-top {
+  width: 1136px;
+  position: absolute;
+  top: calc(96px + 50px);
+  height: 50px;
+  background: linear-gradient(to top, #f7f9fd00, #f7f9fd);
+  border-radius: 16px 0 0 0;
+  z-index: 3;
+}
+
+/* topbar */
+input:not([type='radio']):not([type='checkbox']).search {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #6a6a6a;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%;
+  padding: 0 8px;
+}
+
+/* loading animation */
+.loading::before {
+  content: '';
+  display: inline-block;
+  position: relative;
+  top: 3px;
+  padding: 0;
+  margin: 0 8px 0 0;
+  width: calc(1em - 6px);
+  height: calc(1em - 6px);
+  border: 3px solid #c4c4c4;
+  border-top: 3px solid var(--bg-color-primary);
+  border-radius: 50%;
+  -webkit-animation: spin 1.5s linear infinite;
+  animation: spin 1.5s linear infinite;
+}
+
+@media only screen and (max-width: 768px) {
+  div.view-content {
+    border-radius: 0;
+  }
+}
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-animation: rotate(0deg);
+  }
+  100% {
+    -webkit-animation: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* landingpage */
+.lp-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1440px;
+  margin-bottom: 130px;
+}
+.title {
+  font-family: SpoqaHanSansNeo, Arial, Helvetica, sans-serif;
+  font-size: calc(2.75rem + 10%);
+  font-weight: bold;
+  color: #313131;
+  letter-spacing: -0.06em;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  font-family: SpoqaHanSansNeo, Arial, Helvetica, sans-serif;
+  font-size: 1.75rem;
+  font-weight: normal;
+  color: #828282;
+  letter-spacing: -0.05em;
+  line-height: 1.5;
+}
+
+@media only screen and (max-width: 768px) {
+  .title {
+    font-size: 7.2vw;
+  }
+  .subtitle {
+    font-size: 4.4vw;
+    line-height: 1.6;
+  }
+}
