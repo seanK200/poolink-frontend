@@ -180,23 +180,23 @@ export default function AuthProvider({ children }) {
     [isUserProfileValid]
   );
 
-  useEffect(() => {
-    const navigateFrom =
-      location.pathname === '/login'
-        ? location?.state?.from?.pathname || '/'
-        : location;
-    if (isUserProfileValid(userProfile)) {
-      if (!isUserProfileComplete(userProfile)) {
-        navigate(`/signup/1`, { state: { from: navigateFrom } });
-      }
-      // else {
-      //   navigate(`/signup/2`, { state : { from: navigateFrom } })
-      // }
-    } else {
-      navigate(`/login`, { state: { from: navigateFrom } });
-    }
-    // eslint-disable-next-line
-  }, [userProfile]);
+  // useEffect(() => {
+  //   const navigateFrom =
+  //     location.pathname === '/login'
+  //       ? location?.state?.from?.pathname || '/'
+  //       : location;
+  //   if (isUserProfileValid(userProfile)) {
+  //     if (!isUserProfileComplete(userProfile)) {
+  //       navigate(`/signup/1`, { state: { from: navigateFrom } });
+  //     }
+  //     // else {
+  //     //   navigate(`/signup/2`, { state : { from: navigateFrom } })
+  //     // }
+  //   } else {
+  //     navigate(`/login`, { state: { from: navigateFrom } });
+  //   }
+  //   // eslint-disable-next-line
+  // }, [userProfile]);
 
   useEffect(() => {
     if (poolinkAccessToken) {

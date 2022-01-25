@@ -2,6 +2,7 @@
 @import url('./styles/views.css');
 @import url('./styles/button.css');
 @import url('./styles/input.css');
+@import url('./styles/modal.css');
 
 * {
   box-sizing: border-box;

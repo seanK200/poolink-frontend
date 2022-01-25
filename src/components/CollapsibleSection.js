@@ -15,6 +15,7 @@ export default function CollapsibleSection({
   );
 
   const handleHeaderClick = (e) => {
+    e.stopPropagation();
     setIsCollapsed((prevIsCollapsed) => !prevIsCollapsed);
   };
 

@@ -14,7 +14,7 @@ import { XLg } from 'react-bootstrap-icons';
 
 export default function Sidebar({ isVisible, hideSidebar }) {
   return (
-    <StyledSidebar className={isVisible ? 'visible' : ''}>
+    <StyledSidebar className={isVisible ? 'visible' : ''} onClick={hideSidebar}>
       <Logo
         className="logo-sidebar"
         style={{ width: '109px', margin: '32px 0' }}
@@ -28,7 +28,6 @@ export default function Sidebar({ isVisible, hideSidebar }) {
           right: '24px',
         }}
         className="mobile-close-sidebar"
-        onClick={hideSidebar}
       />
       <AddLinkButton />
       <Nav text="내 보드" to="/boards/my" iconSvg={BoardListSvg} />
