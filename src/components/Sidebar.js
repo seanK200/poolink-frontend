@@ -11,18 +11,14 @@ import Nav from '../components/Nav';
 import CollapsibleSection from '../components/CollapsibleSection';
 import FavoritesIcon from '../components/assets/FavoritesIcon';
 import { XLg } from 'react-bootstrap-icons';
-import { useState } from 'react';
 
-export default function Sidebar() {
-  const [isVisible, setIsVisible] = useState(true); // mobile
-
-  const closeSidebar = () => {
-    setIsVisible(false);
-  };
-
+export default function Sidebar({ isVisible, hideSidebar }) {
   return (
     <StyledSidebar className={isVisible ? 'visible' : ''}>
-      <Logo style={{ width: '109px', margin: '32px 0' }} />
+      <Logo
+        className="logo-sidebar"
+        style={{ width: '109px', margin: '32px 0' }}
+      />
       <XLg
         style={{
           cursor: 'pointer',
@@ -32,7 +28,7 @@ export default function Sidebar() {
           right: '24px',
         }}
         className="mobile-close-sidebar"
-        onClick={closeSidebar}
+        onClick={hideSidebar}
       />
       <AddLinkButton />
       <Nav text="내 보드" to="/boards/my" iconSvg={BoardListSvg} />
@@ -79,6 +75,7 @@ const StyledSidebar = styled.div`
     left: -248px;
     opacity: 0;
     transition: 0.5s ease;
+
     &.visible {
       opacity: 1;
       transform: translateX(248px);

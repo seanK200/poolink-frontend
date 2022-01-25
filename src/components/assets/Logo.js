@@ -13,4 +13,6 @@ export default function Logo({ ...rest }) {
 
 const StyledLogo = styled.img`
   width: 100%;
+  position: relative;
+  top: -3px;
 `;

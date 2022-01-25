@@ -1,14 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 
 export default function DefaultLayout() {
+  const [isVisible, setIsVisible] = useState(false); // mobile
+
+  const showSidebar = () => {
+    setIsVisible(true);
+  };
+
+  const hideSidebar = () => {
+    setIsVisible(false);
+  };
+
   return (
     <Container className="no-scrollbar">
-      <Sidebar />
+      <Sidebar
+        isVisible={isVisible}
+        showSidebar={showSidebar}
+        hideSidebar={hideSidebar}
+      />
       <div className="view-container no-scrollbar">
-        <Topbar />
+        <Topbar showSidebar={showSidebar} />
         <div className="view-content"></div>
       </div>
     </Container>
