@@ -7,12 +7,12 @@ export default function AccountProfile() {
   const profileImgRef = useRef(null);
   const menuRef = useRef(null);
 
-  const openMenu = () => {
-    setMenuOpen(true);
-  };
-
   const closeMenu = () => {
     setMenuOpen(false);
+  };
+
+  const handleProfileImgClick = () => {
+    setMenuOpen((prev) => !prev);
   };
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function AccountProfile() {
           alt="Profile"
           className={menuOpen ? 'menuOpen' : ''}
           ref={profileImgRef}
-          onClick={openMenu}
+          onClick={handleProfileImgClick}
         />
         <MenuContainer
           menuOpen={menuOpen}
