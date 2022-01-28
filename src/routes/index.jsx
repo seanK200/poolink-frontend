@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
@@ -23,7 +24,9 @@ export default function DefaultLayout() {
       />
       <div className="view-container no-scrollbar">
         <Topbar showSidebar={showSidebar} />
-        <div className="view-content"></div>
+        <div className="view-content">
+          <Outlet />
+        </div>
       </div>
     </Container>
   );

@@ -23,7 +23,7 @@ export default function AccountProfile() {
     <React.Fragment>
       <Container>
         <img
-          src={process.env.PUBLIC_URL + '/images/DefaultProfileImage.png'}
+          src={process.env.PUBLIC_URL + '/assets/DefaultProfileImage.png'}
           alt="Profile"
           className={menuOpen ? 'menuOpen' : ''}
           ref={profileImgRef}

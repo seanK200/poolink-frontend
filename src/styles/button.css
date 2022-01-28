@@ -1,5 +1,5 @@
 button {
-  border: 1px solid;
+  border: none;
   margin: 0;
   line-height: 1em;
   font-family: Pretendard;
@@ -37,4 +37,9 @@ button.secondary {
   color: var(--color-primary);
   background-color: var(--color-secondary);
   border-color: var(--color-secondary);
+}
+
+button.minimal {
+  color: var(--color-primary);
+  background-color: none;
 }

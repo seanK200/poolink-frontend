@@ -18,6 +18,9 @@ const IconContainer = styled.span`
   position: relative;
   display: inline-block;
   padding: 0;
+  & img {
+    height: 1em;
+  }
 `;
 
 const IconMargin = styled.div`
