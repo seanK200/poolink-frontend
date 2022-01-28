@@ -44,6 +44,7 @@
 
 @media only screen and (max-width: 768px) {
   .RouteModal__Content {
+    position: absolute;
     top: 24px;
     left: 24px;
     right: 24px;

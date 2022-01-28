@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { throttle } from 'lodash';
 import useFetch from '../hooks/useFetch';
-import { useAuth } from './AuthProvider';
 
 const DataContext = React.createContext();
 
@@ -12,7 +12,7 @@ export default function DataProvider({ children }) {
   // data from servers
   const [boards, setBoards] = useState({});
   const [links, setLinks] = useState({});
-  const [categories, setCategories] = useState([]);
+  // const [categories, setCategories] = useState([]);
 
   // pagination - GET /boards/my
   const [boardsCurrentPage, setBoardsCurrentPage] = useState(0);
@@ -21,6 +21,20 @@ export default function DataProvider({ children }) {
 
   // fetching boards
   const [fetchBoardsState, fetchBoards] = useFetch('GET', '/boards/my');
+
+  // local values
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  // window size change handler
+  const handleWindowResize = throttle(() => {
+    setWindowSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+  }, 500);
 
   const fetchBoardsNextPage = (pageNum) => {
     pageNum = pageNum ? pageNum : boardsCurrentPage + 1;
@@ -31,14 +45,14 @@ export default function DataProvider({ children }) {
   };
 
   // just one link
-  const processLinkResponse = (linkResponse) => {
-    setLinks((prevLinks) => {
-      return {
-        ...prevLinks,
-        [linkResponse.link_id]: linkResponse,
-      };
-    });
-  };
+  // const processLinkResponse = (linkResponse) => {
+  //   setLinks((prevLinks) => {
+  //     return {
+  //       ...prevLinks,
+  //       [linkResponse.link_id]: linkResponse,
+  //     };
+  //   });
+  // };
 
   // array of links
   const processLinksResponse = (linksResponse) => {
@@ -65,6 +79,15 @@ export default function DataProvider({ children }) {
     setBoards((prevBoards) => ({ ...prevBoards, ...processedBoards }));
   };
 
+  // Effects
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize);
+    return () => {
+      window.removeEventListener('resize', handleWindowResize);
+    };
+    // eslint-disable-next-line
+  }, []);
+
   useEffect(() => {
     if (fetchBoardsState?.res?.data) {
       const { totalPageCount, dataCount, results } = fetchBoardsState.res.data;
@@ -78,11 +101,11 @@ export default function DataProvider({ children }) {
   const value = {
     boards,
     links,
-    categories,
     boardsCurrentPage,
     boardsTotalPageCount,
     boardsDataCount,
     fetchBoardsNextPage,
+    windowSize,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

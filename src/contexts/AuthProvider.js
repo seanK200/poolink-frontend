@@ -1,5 +1,5 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { API_BASE_URL } from '../hooks/useFetch';
 import axios from 'axios';
@@ -62,8 +62,8 @@ export default function AuthProvider({ children }) {
     initialUserProfile
   );
 
-  let navigate = useNavigate();
-  let location = useLocation();
+  // let navigate = useNavigate();
+  // let location = useLocation();
 
   const handleTokenExpire = useCallback(
     (expiredAccessToken) => {

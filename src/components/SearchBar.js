@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { useData } from '../contexts/DataProvider';
 import SearchIcon from './assets/SearchIcon';
+import { breakpoints } from '../consts/responsive';
 
 export default function SearchBar({
   isCollapsed,
@@ -8,6 +10,7 @@ export default function SearchBar({
   placeholder,
   ...rest
 }) {
+  const { windowSize } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef(null);
 
@@ -24,7 +27,8 @@ export default function SearchBar({
   };
 
   const handleInputBlur = () => {
-    setIsCollapsed(true);
+    if (!searchQuery && windowSize.width <= breakpoints.sm)
+      setIsCollapsed(true);
   };
 
   useEffect(() => {
@@ -35,8 +39,19 @@ export default function SearchBar({
     }
   }, [isCollapsed]);
 
+  useEffect(() => {
+    if (windowSize.width > breakpoints.sm) {
+      setIsCollapsed(false);
+    } else {
+      if (!searchQuery) {
+        setIsCollapsed(true);
+      }
+    }
+    // eslint-disable-next-line
+  }, [windowSize]);
+
   return (
-    <StyledSearchBar onClick={handleClick} {...rest}>
+    <StyledSearchBar isCollapsed={isCollapsed} onClick={handleClick} {...rest}>
       <SearchIcon loading={false} />
       <input
         type="text"
@@ -58,8 +73,8 @@ export default function SearchBar({
 
 const StyledSearchBar = styled.div`
   border-radius: 18px;
-  color: var(--color-secondary);
-  background-color: var(--bg-color-secondary);
+  color: var(--color-primary);
+  background-color: var(--color-secondary);
   height: 36px;
   padding: 0 16px;
   font-family: Pretendard;
@@ -68,4 +83,6 @@ const StyledSearchBar = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  width: ${(props) => (props.isCollapsed ? 'auto' : '100%')};
+  max-width: 728px;
 `;

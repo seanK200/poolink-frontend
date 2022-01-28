@@ -1,5 +1,5 @@
 button {
-  border: none;
+  border: 1px solid;
   margin: 0;
   line-height: 1em;
   font-family: Pretendard;
@@ -11,27 +11,30 @@ button {
   cursor: pointer;
 }
 
+button.tiny {
+  padding: 10px 4px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  border-radius: 10px;
+  border-color: rgba(0, 0, 0, 0);
+}
+
 button.small {
   padding: 0 16px;
   font-size: 1rem;
+  font-weight: 400;
   height: 36px;
   border-radius: 18px;
 }
 
 button.primary {
-  color: var(--color-primary);
-  background-color: var(--bg-color-primary);
-  border-color: var(--bg-color-primary);
-}
-
-button.light {
-  color: var(--color-light);
-  background-color: var(--bg-color-light);
-  border-color: var(--bg-color-light);
+  color: white;
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 button.secondary {
-  color: var(--color-secondary);
-  background-color: var(--bg-color-secondary);
-  border-color: var(--bg-color-secondary);
+  color: var(--color-primary);
+  background-color: var(--color-secondary);
+  border-color: var(--color-secondary);
 }

@@ -8,6 +8,7 @@ export default function Button({ icon, children, ...rest }) {
   return (
     <button {...rest}>
       {icon ? <IconContainer>{icon}</IconContainer> : null}
+      {icon && children ? <IconMargin></IconMargin> : null}
       {children}
     </button>
   );
@@ -15,7 +16,10 @@ export default function Button({ icon, children, ...rest }) {
 
 const IconContainer = styled.span`
   position: relative;
-  display: inline;
-  margin: 0 8px 0 0;
+  display: inline-block;
   padding: 0;
+`;
+
+const IconMargin = styled.div`
+  width: 8px;
 `;

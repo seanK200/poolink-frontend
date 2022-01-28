@@ -5,12 +5,15 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import ReactModal from 'react-modal';
 import AuthProvider from './contexts/AuthProvider';
+import DataProvider from './contexts/DataProvider';
 
 ReactDOM.render(
   <BrowserRouter>
     <React.StrictMode>
       <AuthProvider>
-        <App />
+        <DataProvider>
+          <App />
+        </DataProvider>
       </AuthProvider>
     </React.StrictMode>
   </BrowserRouter>,

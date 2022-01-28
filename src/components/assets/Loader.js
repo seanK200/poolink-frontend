@@ -47,21 +47,3 @@ const LoaderContainer = styled.div`
     }
   }
 `;
-
-// const StyledLoader = styled.div`
-//   border: 2px solid var(--bg-color-primary);
-//   border-top: 2px solid var(--color-primary);
-//   border-radius: 50%;
-//   width: ${(props) => (props.size ? props.size : '16px')};
-//   height: ${(props) => (props.size ? props.size : '16px')};
-//   animation: spin 2s linear infinite;
-
-//   @keyframes spin {
-//     0% {
-//       transform: rotate(0deg);
-//     }
-//     100% {
-//       transform: rotate(360deg);
-//     }
-//   }
-// `;

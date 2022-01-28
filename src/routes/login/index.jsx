@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Logo from '../../components/assets/Logo';
 import { GoogleLogin } from 'react-google-login';
 import { GOOGLE_CLIENT_ID, useAuth } from '../../contexts/AuthProvider';
+import { breakpoints } from '../../consts/responsive';
 
 export default function LoginRoute({ isRouteModalOpen }) {
   const { setGoogleProfile } = useAuth();
@@ -31,7 +32,11 @@ export default function LoginRoute({ isRouteModalOpen }) {
 
   return (
     <LoginContainer
-      className={isRouteModalOpen ? 'RouteModal__Content-container' : ''}
+      className={
+        isRouteModalOpen
+          ? 'RouteModal__Content-container'
+          : 'container-no-modal'
+      }
     >
       <LoginFormContainer>
         <div id="login-message"></div>
@@ -65,6 +70,13 @@ const LoginContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: stretch;
+  &.container-no-modal {
+    min-height: 100vh;
+  }
+  @media only screen and (max-width: ${breakpoints.sm}px) {
+    width: 100%;
+    flex-direction: column;
+  }
 `;
 
 const LoginFormContainer = styled.div`
@@ -84,6 +96,10 @@ const LoginFormContainer = styled.div`
     font-weight: 600;
     color: #8e8e8e;
   }
+  @media only screen and (max-width: ${breakpoints.sm}px) {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 const ImageContainer = styled.div`
@@ -94,5 +110,8 @@ const ImageContainer = styled.div`
   background-color: #d8e6fd;
   & img {
     width: 100%;
+  }
+  @media only screen and (max-width: ${breakpoints.sm}px) {
+    display: none;
   }
 `;
