@@ -35,9 +35,9 @@ const StyledNav = styled.div`
 
   &:hover,
   & .active {
-    color: var(--bg-color-primary);
+    color: var(--color-primary);
     & svg {
-      fill: var(--bg-color-primary);
+      fill: var(--color-primary);
     }
   }
 `;

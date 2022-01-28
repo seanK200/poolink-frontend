@@ -22,7 +22,7 @@ const LoaderContainer = styled.div`
     flex-shrink: 0;
     width: calc(var(--size) / 4);
     height: calc(var(--size) / 4);
-    background-color: var(--bg-color-primary);
+    background-color: var(--color-primary);
     border-radius: 50%;
     animation: loading 0.9s linear infinite alternate;
   }
