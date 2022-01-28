@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useData } from '../contexts/DataProvider';
 import SearchIcon from './assets/SearchIcon';
 import { breakpoints } from '../consts/responsive';
+import { XLg } from 'react-bootstrap-icons';
 
 export default function SearchBar({
   isCollapsed,
@@ -14,21 +15,29 @@ export default function SearchBar({
   const [searchQuery, setSearchQuery] = useState('');
   const inputRef = useRef(null);
 
+  const collapseSearchbar = () => {
+    // only on mobile
+    if (windowSize.width <= breakpoints.sm) {
+      setIsCollapsed(true);
+    }
+  };
+
   const handleClick = (e) => {
-    setIsCollapsed((prev) => !prev);
+    setIsCollapsed(false);
   };
 
   const handleInputChange = (e) => {
     setSearchQuery(e.target.value);
   };
 
-  const handleInputClick = (e) => {
-    e.stopPropagation();
+  const handleInputBlur = () => {
+    if (!searchQuery && windowSize.width <= breakpoints.sm) collapseSearchbar();
   };
 
-  const handleInputBlur = () => {
-    if (!searchQuery && windowSize.width <= breakpoints.sm)
-      setIsCollapsed(true);
+  const clearSearchQuery = (e) => {
+    e.stopPropagation();
+    setSearchQuery('');
+    collapseSearchbar();
   };
 
   useEffect(() => {
@@ -63,9 +72,16 @@ export default function SearchBar({
         }}
         placeholder={placeholder ? placeholder : '검색...'}
         onChange={handleInputChange}
-        onClick={handleInputClick}
         onBlur={handleInputBlur}
         ref={inputRef}
+      />
+      <XLg
+        style={{
+          color: 'black',
+          display: searchQuery ? 'block' : 'none',
+          cursor: 'pointer',
+        }}
+        onClick={clearSearchQuery}
       />
     </StyledSearchBar>
   );
