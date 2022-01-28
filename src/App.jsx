@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import RouteModal from './components/modals/RouteModal';
 import DefaultLayout from './routes';
@@ -12,6 +12,7 @@ import BoardsSharedRoute from './routes/boards/shared';
 import ExploreRoute from './routes/explore';
 import GoogleOauthRoute from './routes/googleoauth';
 import LoginRoute from './routes/login';
+import NotFound from './routes/notfound';
 import SettingsLayout from './routes/settings';
 import SettingsGeneralRoute from './routes/settings/general';
 import SignupLayout from './routes/signup';
@@ -60,6 +61,11 @@ function App() {
           element={<GoogleOauthRoute />}
         />
         <Route path="welcome" element={<LandingPage />} />
+        <Route path="notfound" element={<NotFound />} />
+        <Route
+          path="*"
+          element={<Navigate to="notfound" state={{ from: location }} />}
+        />
       </Routes>
       <RouteModal isOpen={isRouteModalOpen} headerType="floating">
         <Routes>

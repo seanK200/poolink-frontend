@@ -18,7 +18,7 @@ export default function Nav({ iconSvg, to, text, ...rest }) {
   );
 }
 
-const StyledNav = styled.div`
+const StyledNav = styled.nav`
   color: #c4c4c4;
   font-weight: 700;
   font-size: 1rem;
