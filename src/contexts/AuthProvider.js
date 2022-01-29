@@ -1,5 +1,5 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { API_BASE_URL } from '../hooks/useFetch';
 import axios from 'axios';
@@ -21,7 +21,7 @@ const initialUserProfile = {
   email: '',
   prefer: [],
   userId: -1,
-  profileImg: '',
+  profileImage: '',
   lastUpdate: '',
 };
 
@@ -44,6 +44,7 @@ export function useAuth() {
 }
 
 export default function AuthProvider({ children }) {
+  // tokens
   const [poolinkAccessToken, setPoolinkAccessToken] = useLocalStorage(
     'accessToken',
     ''
@@ -53,21 +54,24 @@ export default function AuthProvider({ children }) {
     ''
   );
 
-  const [isAccessTokenValid, setIsAccessTokenValid] = useState(true);
-  const [isRefreshTokenValid, setIsRefreshTokenValid] = useState(true);
+  // token valid flags
+  const [isAccessTokenValid, setIsAccessTokenValid] = useState(false);
+  const [isRefreshTokenValid, setIsRefreshTokenValid] = useState(false);
 
+  // profiles
   const [googleProfile, setGoogleProfile] = useState(initialGoogleProfile);
   const [userProfile, setUserProfile] = useLocalStorage(
     'userProfile',
     initialUserProfile
   );
 
-  // let navigate = useNavigate();
-  // let location = useLocation();
+  let location = useLocation();
+  let navigate = useNavigate();
 
   const handleTokenExpire = useCallback(
     (expiredAccessToken) => {
       if (poolinkAccessToken === expiredAccessToken && isAccessTokenValid) {
+        console.log(`handleTokenExpire`);
         setIsAccessTokenValid(false);
         // make request to refresh access token
       }
@@ -75,6 +79,7 @@ export default function AuthProvider({ children }) {
     [poolinkAccessToken, isAccessTokenValid]
   );
 
+  // refresh access token
   useEffect(() => {
     async function refreshAccessToken() {
       let newPoolinkAccessToken = '';
@@ -84,22 +89,21 @@ export default function AuthProvider({ children }) {
           refresh_token: poolinkRefreshToken,
         };
         const res = await axios.post(url, data);
-        if (res.status === 201) {
-          newPoolinkAccessToken = res.data.access_token;
-        }
+        newPoolinkAccessToken = res.data.access_token;
       } catch (e) {
         newPoolinkAccessToken = '';
       }
       setPoolinkAccessToken(newPoolinkAccessToken);
       if (!newPoolinkAccessToken) {
-        setPoolinkRefreshToken('');
-        poolinkSignout();
+        setIsRefreshTokenValid(false);
+        poolinkSignout(); // on fail
       }
     }
     if (!isAccessTokenValid && poolinkAccessToken) refreshAccessToken();
     // eslint-disable-next-line
   }, [isAccessTokenValid]);
 
+  // login to Poolink after Google response
   const poolinkLogin = useCallback(
     async (googleProfile, googleAccessToken) => {
       setGoogleProfile(googleProfile);
@@ -112,7 +116,7 @@ export default function AuthProvider({ children }) {
         const config = {};
         const user = await axios.post(url, data, config);
 
-        // Profile image from Google
+        // Profile image url from Google
         const { imageUrl: profileImage = '' } = googleProfile;
 
         // user information from Poolink
@@ -124,8 +128,9 @@ export default function AuthProvider({ children }) {
           user_id: userId = -1,
           access_token: accessToken = '',
           refresh_token: refreshToken = '',
-        } = user;
+        } = user.data;
 
+        // construct new user profile
         const userProfile = {
           userId,
           userRealName,
@@ -140,19 +145,26 @@ export default function AuthProvider({ children }) {
         setUserProfile(userProfile);
         setPoolinkAccessToken(accessToken);
         setPoolinkRefreshToken(refreshToken);
-
-        return userProfile;
       } catch (e) {
+        // on fail, log the error
         console.log(e);
-        return false;
       }
     },
     [setUserProfile, setPoolinkAccessToken, setPoolinkRefreshToken]
   );
 
-  const poolinkSignout = () => {
+  const navigateToLogin = () => {
+    if (location.pathname !== '/login') {
+      navigate('/login', { state: { from: location } });
+    }
+  };
+
+  const poolinkSignout = async () => {};
+
+  const handlePoolinkSignoutSuccess = () => {
     setPoolinkAccessToken('');
     setPoolinkRefreshToken('');
+    setUserProfile(initialUserProfile);
   };
 
   const isLoggedIn = useCallback(() => {
@@ -180,24 +192,6 @@ export default function AuthProvider({ children }) {
     [isUserProfileValid]
   );
 
-  // useEffect(() => {
-  //   const navigateFrom =
-  //     location.pathname === '/login'
-  //       ? location?.state?.from?.pathname || '/'
-  //       : location;
-  //   if (isUserProfileValid(userProfile)) {
-  //     if (!isUserProfileComplete(userProfile)) {
-  //       navigate(`/signup/1`, { state: { from: navigateFrom } });
-  //     }
-  //     // else {
-  //     //   navigate(`/signup/2`, { state : { from: navigateFrom } })
-  //     // }
-  //   } else {
-  //     navigate(`/login`, { state: { from: navigateFrom } });
-  //   }
-  //   // eslint-disable-next-line
-  // }, [userProfile]);
-
   useEffect(() => {
     if (poolinkAccessToken) {
       setIsAccessTokenValid(true);
@@ -220,11 +214,16 @@ export default function AuthProvider({ children }) {
     userProfile,
     poolinkAccessToken,
     poolinkRefreshToken,
+    isAccessTokenValid,
+    isRefreshTokenValid,
     isLoggedIn,
     isUserProfileValid,
     isUserProfileComplete,
     handleTokenExpire,
     poolinkLogin,
+    poolinkSignout,
+    handlePoolinkSignoutSuccess,
+    navigateToLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

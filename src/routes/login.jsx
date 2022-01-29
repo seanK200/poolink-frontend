@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import Logo from '../../components/assets/Logo';
+import Logo from '../components/assets/Logo';
 import { GoogleLogin } from 'react-google-login';
-import { GOOGLE_CLIENT_ID, useAuth } from '../../contexts/AuthProvider';
-import { breakpoints } from '../../consts/responsive';
+import { GOOGLE_CLIENT_ID, useAuth } from '../contexts/AuthProvider';
+import { breakpoints } from '../consts/responsive';
+import { LOGIN_MESSAGE } from '../consts/strings';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function LoginRoute({ isRouteModalOpen }) {
-  const { setGoogleProfile } = useAuth();
+  const { poolinkLogin } = useAuth();
+  const [loginMessage, setLoginMessage] = useState('');
+  const loginMessageRef = useRef(null);
+
+  let location = useLocation();
+  let navigate = useNavigate();
+  let state = location?.state;
 
   const handleGoogleLogin = async (googleResponse) => {
     console.log(googleResponse);
@@ -21,12 +29,25 @@ export default function LoginRoute({ isRouteModalOpen }) {
         name: "string"
       }
       */
+      // Response from Google
       const googleProfile = googleResponse.profileObj;
-      setGoogleProfile(googleProfile);
+      const googleAccessToken = googleResponse.accessToken;
+      setLoginMessage(LOGIN_MESSAGE.loading);
+      loginMessageRef.current.style.color = 'black';
+
+      // Login to Poolink server
+      await poolinkLogin(googleProfile, googleAccessToken);
+      setLoginMessage(LOGIN_MESSAGE.success);
+
+      // Navigate to wherever user came from
+      let from = state?.from || '/';
+      navigate(from, { replace: true });
     }
   };
 
   const handleGoogleLoginError = async (googleResponse) => {
+    setLoginMessage(LOGIN_MESSAGE.error);
+    loginMessageRef.current.style.color = 'red';
     console.log(googleResponse);
   };
 
@@ -39,12 +60,15 @@ export default function LoginRoute({ isRouteModalOpen }) {
       }
     >
       <LoginFormContainer>
-        <div id="login-message"></div>
+        <div id="login-message" ref={loginMessageRef}>
+          {loginMessage}
+        </div>
         <div id="login-form-container">
           <Logo style={{ width: '208px', marginBottom: '48px' }} />
           <GoogleLogin
             clientId={GOOGLE_CLIENT_ID}
             buttonText="Google로 로그인"
+            disabledStyle={{ visibility: 'hidden' }}
             onSuccess={handleGoogleLogin}
             onFailure={handleGoogleLoginError}
             prompt={'select_account'}
@@ -71,7 +95,7 @@ const LoginContainer = styled.div`
   justify-content: center;
   align-items: stretch;
   &.container-no-modal {
-    min-height: 100vh;
+    height: 100vh;
   }
   @media only screen and (max-width: ${breakpoints.sm}px) {
     width: 100%;

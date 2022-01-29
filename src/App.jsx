@@ -15,6 +15,7 @@ import LoginRoute from './routes/login';
 import NotFound from './routes/notfound';
 import SettingsLayout from './routes/settings';
 import SettingsGeneralRoute from './routes/settings/general';
+import SignoutRoute from './routes/signout';
 import SignupLayout from './routes/signup';
 import SignupCategoryRoute from './routes/signup/category';
 import SignupInfoRoute from './routes/signup/info';
@@ -22,7 +23,7 @@ import LandingPage from './routes/welcome';
 
 function App() {
   let location = useLocation();
-  let state = location.state;
+  let state = location?.state;
   const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
 
   useEffect(() => {
@@ -61,6 +62,7 @@ function App() {
           <Route path="info" element={<SignupInfoRoute />} />
           <Route path="category" element={<SignupCategoryRoute />} />
         </Route>
+        <Route path="signout" element={<SignoutRoute />} />
         <Route
           path="/googlea1d97ae014823e39.html"
           element={<GoogleOauthRoute />}

@@ -10,17 +10,17 @@ export function useData() {
 
 export default function DataProvider({ children }) {
   // data from servers
-  const [boards, setBoards] = useState({});
+  const [myBoards, setMyBoards] = useState({});
   const [links, setLinks] = useState({});
   // const [categories, setCategories] = useState([]);
 
   // pagination - GET /boards/my
-  const [boardsCurrentPage, setBoardsCurrentPage] = useState(0);
-  const [boardsTotalPageCount, setBoardsTotalPageCount] = useState(1);
-  const [boardsDataCount, setBoardsDataCount] = useState(0);
+  const [myBoardsCurrentPage, setMyBoardsCurrentPage] = useState(0);
+  const [myBoardsTotalPageCount, setMyBoardsTotalPageCount] = useState(1);
+  const [myBoardsDataCount, setMyBoardsDataCount] = useState(0);
 
   // fetching boards
-  const [fetchBoardsState, fetchBoards] = useFetch('GET', '/boards/my');
+  const [fetchMyBoardsState, fetchMyBoards] = useFetch('GET', '/boards/my');
 
   // local values
   const [windowSize, setWindowSize] = useState({
@@ -36,48 +36,16 @@ export default function DataProvider({ children }) {
     });
   }, 500);
 
-  const fetchBoardsNextPage = (pageNum) => {
-    pageNum = pageNum ? pageNum : boardsCurrentPage + 1;
-    if (pageNum <= boardsTotalPageCount) {
-      fetchBoards({ query: { page: pageNum } });
-      setBoardsCurrentPage((prev) => prev + 1);
+  // add boards to my boards
+  useEffect(() => {
+    if (fetchMyBoardsState?.res?.data) {
+      const { dataCount, totalPageCount, results } =
+        fetchMyBoardsState.res.data;
+      const processedBoards = {};
+      const processedLinks = {};
+      results.forEach((board) => {});
     }
-  };
-
-  // just one link
-  // const processLinkResponse = (linkResponse) => {
-  //   setLinks((prevLinks) => {
-  //     return {
-  //       ...prevLinks,
-  //       [linkResponse.link_id]: linkResponse,
-  //     };
-  //   });
-  // };
-
-  // array of links
-  const processLinksResponse = (linksResponse) => {
-    const linkIds = [];
-    const processedLinks = {};
-    linksResponse.forEach((link) => {
-      linkIds.push(link.link_id);
-      processedLinks[link.link_id] = link;
-    });
-    setLinks((prevLinks) => ({ ...prevLinks, ...processedLinks }));
-    return linkIds;
-  };
-
-  // array of boards
-  const processBoardsResponse = (boardsResponse) => {
-    const processedBoards = {};
-    boardsResponse.forEach((board) => {
-      const processedBoard = {
-        ...board,
-        links: processLinksResponse(board.links),
-      };
-      processedBoards[board.board_id] = processedBoard;
-    });
-    setBoards((prevBoards) => ({ ...prevBoards, ...processedBoards }));
-  };
+  }, [fetchMyBoardsState]);
 
   // Effects
   useEffect(() => {
@@ -88,23 +56,12 @@ export default function DataProvider({ children }) {
     // eslint-disable-next-line
   }, []);
 
-  useEffect(() => {
-    if (fetchBoardsState?.res?.data) {
-      const { totalPageCount, dataCount, results } = fetchBoardsState.res.data;
-      setBoardsTotalPageCount(totalPageCount);
-      setBoardsDataCount(dataCount);
-      processBoardsResponse(results);
-    }
-    // eslint-disable-next-line
-  }, [fetchBoardsState]);
-
   const value = {
-    boards,
+    myBoards,
     links,
-    boardsCurrentPage,
-    boardsTotalPageCount,
-    boardsDataCount,
-    fetchBoardsNextPage,
+    myBoardsCurrentPage,
+    myBoardsTotalPageCount,
+    myBoardsDataCount,
     windowSize,
   };
 

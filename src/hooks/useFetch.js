@@ -49,7 +49,7 @@ function getFinalUrl(url, params, query) {
 }
 
 export function useManualFetch(method, url, options = null) {
-  options = { ...defaultOptions, options };
+  options = { ...defaultOptions, ...options };
 
   const [fetchState, setFetchState] = useState({
     loading: false,
@@ -60,12 +60,16 @@ export function useManualFetch(method, url, options = null) {
   });
 
   const {
-    poolinkAccessToken = '',
-    handleTokenExpire = null,
-    isAccessTokenValid = true,
+    poolinkAccessToken,
+    handleTokenExpire,
+    isAccessTokenValid,
+    isRefreshTokenValid,
+    navigateToLogin,
   } = options;
 
   const fetchData = async ({ data = null, params = null, query = null }) => {
+    if (options.useToken && !isRefreshTokenValid) navigateToLogin();
+
     try {
       setFetchState({
         loading: true,
@@ -114,7 +118,7 @@ export function useManualFetch(method, url, options = null) {
         // useEffect hook will retry once access token is renewed
         newFetchState.loading = true;
       }
-      setFetchState((prev) => ({ ...prev, newFetchState }));
+      setFetchState((prev) => ({ ...prev, ...newFetchState }));
     }
   };
 
@@ -124,7 +128,7 @@ export function useManualFetch(method, url, options = null) {
       const { loading, fetchArgs, accessToken, err } = fetchState;
 
       // Only retry when...
-      // Response status is 401 Unauthorized, 403 Forbidden
+      // Response status is 401 Unauthorized, 403 Forbidden, or
       const invalidAcessTokenErr =
         err?.respose?.status === 401 || err?.respose?.status === 403;
       // Request used an old access token
@@ -145,15 +149,22 @@ export function useManualFetch(method, url, options = null) {
 }
 
 export default function useFetch(method, url, options = null) {
-  const { poolinkAccessToken, isAccessTokenValid, handleTokenExpire } =
-    useAuth();
+  const {
+    poolinkAccessToken,
+    isAccessTokenValid,
+    isRefreshTokenValid,
+    handleTokenExpire,
+    navigateToLogin,
+  } = useAuth();
 
   options = {
     ...defaultOptions,
     ...options,
     poolinkAccessToken,
     isAccessTokenValid,
+    isRefreshTokenValid,
     handleTokenExpire,
+    navigateToLogin,
   };
 
   return useManualFetch(method, url, options);

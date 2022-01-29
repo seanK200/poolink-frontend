@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { useAuth } from '../contexts/AuthProvider';
 import Button from './buttons/Button';
+import { SIGNOUT_PROMPT } from '../consts/strings';
 
 export default function AccountProfile() {
+  const { userProfile, isUserProfileValid, poolinkSignout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const profileImgRef = useRef(null);
   const menuRef = useRef(null);
@@ -15,19 +18,43 @@ export default function AccountProfile() {
     setMenuOpen((prev) => !prev);
   };
 
+  const handleProfileImgError = () => {
+    profileImgRef.current.src =
+      process.env.PUBLIC_URL + '/assets/DefaultProfileImage.png';
+  };
+
+  const handleSignoutClick = () => {
+    if (window.confirm(SIGNOUT_PROMPT)) {
+      poolinkSignout();
+    }
+  };
+
   useEffect(() => {
     menuRef.current.style.opacity = menuOpen ? 1 : 0;
   }, [menuOpen]);
+
+  useEffect(() => {
+    if (isUserProfileValid) {
+      profileImgRef.current.src =
+        userProfile?.profileImage ||
+        process.env.PUBLIC_URL + '/assets/DefaultProfileImage.png';
+    }
+    // eslint-disable-next-line
+  }, [userProfile]);
 
   return (
     <React.Fragment>
       <Container>
         <img
-          src={process.env.PUBLIC_URL + '/assets/DefaultProfileImage.png'}
+          src={
+            userProfile?.profileImage ||
+            process.env.PUBLIC_URL + '/assets/DefaultProfileImage.png'
+          }
           alt="Profile"
           className={menuOpen ? 'menuOpen' : ''}
           ref={profileImgRef}
           onClick={handleProfileImgClick}
+          onError={handleProfileImgError}
         />
         <MenuContainer
           menuOpen={menuOpen}
@@ -35,8 +62,8 @@ export default function AccountProfile() {
           className={menuOpen ? 'menuOpen' : ''}
         >
           <ProfileInfo>
-            <UserName>poolink</UserName>
-            <UserEmail>yw.sean.kim@gmail.com</UserEmail>
+            <UserName>{userProfile?.userName || ''}</UserName>
+            <UserEmail>{userProfile?.email || ''}</UserEmail>
           </ProfileInfo>
           <Button
             className="secondary tiny"
@@ -47,6 +74,7 @@ export default function AccountProfile() {
           <Button
             className="tiny"
             style={{ width: '100%', color: 'var(--color-gray)' }}
+            onClick={handleSignoutClick}
           >
             로그아웃
           </Button>
@@ -68,6 +96,7 @@ const Container = styled.div`
     width: 32px;
     z-index: 3;
     transition: 0.75s;
+    border-radius: 50%;
   }
   & img.menuOpen {
     width: 55px;
