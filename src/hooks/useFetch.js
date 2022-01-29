@@ -63,13 +63,13 @@ export function useManualFetch(method, url, options = null) {
     poolinkAccessToken,
     handleTokenExpire,
     isAccessTokenValid,
-    isRefreshTokenValid,
+    isLoggedIn,
     navigateToLogin,
   } = options;
 
-  const fetchData = async ({ data = null, params = null, query = null }) => {
-    if (options.useToken && !isRefreshTokenValid) navigateToLogin();
-
+  const fetchData = async (
+    { data, params, query } = { data: null, params: null, query: null }
+  ) => {
     try {
       setFetchState({
         loading: true,
@@ -81,7 +81,12 @@ export function useManualFetch(method, url, options = null) {
 
       // Stop here if access token is invalid.
       // useEffect hook will retry once access token is renewed
-      if (!isAccessTokenValid) return;
+      if (!isAccessTokenValid) {
+        if (!isLoggedIn()) {
+          navigateToLogin();
+        }
+        return;
+      }
 
       // make request and wait for response
       const res = await axios.request({
@@ -99,9 +104,14 @@ export function useManualFetch(method, url, options = null) {
       // update state with response
       setFetchState((prev) => ({ ...prev, loading: false, res: res }));
     } catch (e) {
+      console.log(e);
       let newFetchState = { loading: false, res: null, err: e };
       const errorStatusCode = e?.response?.status; // HTTP response status code
-      if (errorStatusCode === 401 || errorStatusCode === 403) {
+      if (
+        options.useToken ||
+        errorStatusCode === 401 ||
+        errorStatusCode === 403
+      ) {
         // invalid access token
         const authorizationHeader = e?.response?.config?.headers?.Authorization;
         const expiredToken =
@@ -122,20 +132,13 @@ export function useManualFetch(method, url, options = null) {
     }
   };
 
-  // retry after refreshing access token
+  // auto retry after refreshing access token
   useEffect(() => {
     if (isAccessTokenValid) {
-      const { loading, fetchArgs, accessToken, err } = fetchState;
-
-      // Only retry when...
-      // Response status is 401 Unauthorized, 403 Forbidden, or
-      const invalidAcessTokenErr =
-        err?.respose?.status === 401 || err?.respose?.status === 403;
-      // Request used an old access token
-      const accessTokenChanged = accessToken !== poolinkAccessToken;
-      // and loading state is true
-      const shouldRetry =
-        loading && (accessTokenChanged || invalidAcessTokenErr);
+      // only retry when loading state is true
+      // if not, it has never been attempted before, so no need to retry
+      const { loading, fetchArgs } = fetchState;
+      const shouldRetry = loading;
 
       // retry with same arguments
       if (shouldRetry) {
@@ -152,8 +155,8 @@ export default function useFetch(method, url, options = null) {
   const {
     poolinkAccessToken,
     isAccessTokenValid,
-    isRefreshTokenValid,
     handleTokenExpire,
+    isLoggedIn,
     navigateToLogin,
   } = useAuth();
 
@@ -162,8 +165,8 @@ export default function useFetch(method, url, options = null) {
     ...options,
     poolinkAccessToken,
     isAccessTokenValid,
-    isRefreshTokenValid,
     handleTokenExpire,
+    isLoggedIn,
     navigateToLogin,
   };
 

@@ -77,6 +77,7 @@ function App() {
       <RouteModal isOpen={isRouteModalOpen} headerType="floating">
         <Routes>
           <Route path="login" element={<LoginRoute isRouteModalOpen />} />
+          <Route path="signout" element={<SignoutRoute />} />
           <Route path="*" element={<React.Fragment />} />
         </Routes>
       </RouteModal>

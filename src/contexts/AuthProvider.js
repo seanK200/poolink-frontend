@@ -1,7 +1,7 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import useLocalStorage from '../hooks/useLocalStorage';
-import { API_BASE_URL } from '../hooks/useFetch';
+import { API_BASE_URL, useManualFetch } from '../hooks/useFetch';
 import axios from 'axios';
 
 const AuthContext = React.createContext();
@@ -68,6 +68,47 @@ export default function AuthProvider({ children }) {
   let location = useLocation();
   let navigate = useNavigate();
 
+  const isUserProfileValid = useCallback((userProfile) => {
+    return userProfile && userProfile.userId >= 0;
+  }, []);
+
+  // all required information is filled
+  const isUserProfileComplete = useCallback(
+    (userProfile, strict = false) => {
+      if (userProfile && isUserProfileValid(userProfile)) {
+        const { userRealName, userName, email, prefer } = userProfile;
+        // Always check userRealName, userName, email
+        let isComplete = userRealName && userName && email;
+        // Only check prefer on strict mode
+        if (strict) isComplete = isComplete && prefer?.length;
+
+        return isComplete;
+      }
+      return false;
+    },
+    [isUserProfileValid]
+  );
+
+  const isLoggedIn = useCallback(() => {
+    return isRefreshTokenValid && isUserProfileValid(userProfile);
+  }, [isRefreshTokenValid, isUserProfileValid, userProfile]);
+
+  const navigateToLogin = (modal = false) => {
+    if (location.pathname !== '/login') {
+      console.log('navigateToLogin');
+      const navigateState = {
+        from: location,
+      };
+      if (modal) {
+        navigateState.backgroundLocation = location;
+      }
+      // settimeout to avoid navigate being called before mount
+      setTimeout(() => {
+        navigate('/login', { state: navigateState });
+      }, 1);
+    }
+  };
+
   const handleTokenExpire = useCallback(
     (expiredAccessToken) => {
       if (poolinkAccessToken === expiredAccessToken && isAccessTokenValid) {
@@ -80,26 +121,43 @@ export default function AuthProvider({ children }) {
   );
 
   // refresh access token
+  const [refreshAccessTokenState, requestAccessTokenRefresh] = useManualFetch(
+    'POST',
+    '/users/token/refresh',
+    {
+      useToken: false,
+      poolinkAccessToken,
+      handleTokenExpire,
+      isAccessTokenValid,
+      isLoggedIn,
+      navigateToLogin,
+    }
+  );
   useEffect(() => {
-    async function refreshAccessToken() {
-      let newPoolinkAccessToken = '';
-      try {
-        const url = API_BASE_URL + `/users/token/refresh`;
-        const data = {
-          refresh_token: poolinkRefreshToken,
-        };
-        const res = await axios.post(url, data);
-        newPoolinkAccessToken = res.data.access_token;
-      } catch (e) {
-        newPoolinkAccessToken = '';
-      }
-      setPoolinkAccessToken(newPoolinkAccessToken);
-      if (!newPoolinkAccessToken) {
+    if (!refreshAccessTokenState.loading) {
+      if (refreshAccessTokenState.res?.data) {
+        setPoolinkAccessToken(
+          refreshAccessTokenState.res?.data?.access_token || ''
+        );
+      } else if (refreshAccessTokenState.err) {
         setIsRefreshTokenValid(false);
-        poolinkSignout(); // on fail
+        poolinkSignout();
       }
     }
-    if (!isAccessTokenValid && poolinkAccessToken) refreshAccessToken();
+    // eslint-disable-next-line
+  }, [refreshAccessTokenState]);
+
+  useEffect(() => {
+    if (
+      !refreshAccessTokenState.loading &&
+      isUserProfileValid(userProfile) &&
+      !isAccessTokenValid &&
+      poolinkAccessToken
+    ) {
+      requestAccessTokenRefresh({
+        data: { refresh_token: poolinkRefreshToken },
+      });
+    }
     // eslint-disable-next-line
   }, [isAccessTokenValid]);
 
@@ -153,44 +211,20 @@ export default function AuthProvider({ children }) {
     [setUserProfile, setPoolinkAccessToken, setPoolinkRefreshToken]
   );
 
-  const navigateToLogin = () => {
-    if (location.pathname !== '/login') {
-      navigate('/login', { state: { from: location } });
+  const poolinkSignout = (modal = false) => {
+    if (modal) {
+      navigate('/signout', { state: { backgroundLocation: location } });
+    } else {
+      navigate('/signout');
     }
   };
-
-  const poolinkSignout = async () => {};
 
   const handlePoolinkSignoutSuccess = () => {
     setPoolinkAccessToken('');
     setPoolinkRefreshToken('');
     setUserProfile(initialUserProfile);
+    navigate('/welcome', { replace: true });
   };
-
-  const isLoggedIn = useCallback(() => {
-    return isRefreshTokenValid;
-  }, [isRefreshTokenValid]);
-
-  const isUserProfileValid = useCallback((userProfile) => {
-    return userProfile && userProfile.userId >= 0;
-  }, []);
-
-  // all required information is filled
-  const isUserProfileComplete = useCallback(
-    (userProfile, strict = false) => {
-      if (userProfile && isUserProfileValid(userProfile)) {
-        const { userRealName, userName, email, prefer } = userProfile;
-        // Always check userRealName, userName, email
-        let isComplete = userRealName && userName && email;
-        // Only check prefer on strict mode
-        if (strict) isComplete = isComplete && prefer?.length;
-
-        return isComplete;
-      }
-      return false;
-    },
-    [isUserProfileValid]
-  );
 
   useEffect(() => {
     if (poolinkAccessToken) {

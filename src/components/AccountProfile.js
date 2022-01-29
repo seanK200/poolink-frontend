@@ -25,7 +25,7 @@ export default function AccountProfile() {
 
   const handleSignoutClick = () => {
     if (window.confirm(SIGNOUT_PROMPT)) {
-      poolinkSignout();
+      poolinkSignout(true);
     }
   };
 

@@ -17,7 +17,6 @@ export default function LoginRoute({ isRouteModalOpen }) {
   let state = location?.state;
 
   const handleGoogleLogin = async (googleResponse) => {
-    console.log(googleResponse);
     if (googleResponse.profileObj) {
       /*
       Google OAuth profileObj = {
@@ -48,7 +47,7 @@ export default function LoginRoute({ isRouteModalOpen }) {
   const handleGoogleLoginError = async (googleResponse) => {
     setLoginMessage(LOGIN_MESSAGE.error);
     loginMessageRef.current.style.color = 'red';
-    console.log(googleResponse);
+    // console.log(googleResponse);
   };
 
   return (
