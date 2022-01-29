@@ -71,13 +71,13 @@ const StyledSidebar = styled.div`
   @media only screen and (max-width: 768px) {
     position: absolute;
     z-index: 4;
-    left: -248px;
+    transform: translateX(-100%);
     opacity: 0;
     transition: 0.5s ease;
 
     &.visible {
       opacity: 1;
-      transform: translateX(248px);
+      transform: translateX(0);
     }
     & .mobile-close-sidebar {
       display: flex;

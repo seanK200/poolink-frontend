@@ -37,15 +37,19 @@ function App() {
     <Wrapper>
       <Routes location={state?.backgroundLocation || location}>
         <Route path="/" element={<DefaultLayout />}>
+          <Route index element={<Navigate to="boards/my" />} />
           <Route path="boards" element={<BoardsLayout />}>
+            <Route index element={<Navigate to="my" />} />
             <Route path="my" element={<BoardsMyRoute />} />
             <Route path="shared" element={<BoardsSharedRoute />} />
           </Route>
           <Route path="explore" element={<ExploreRoute />} />
           <Route path="settings" element={<SettingsLayout />}>
+            <Route index element={<Navigate to="general" />} />
             <Route path="general" element={<SettingsGeneralRoute />} />
           </Route>
           <Route path="board" element={<BoardLayout />}>
+            <Route index element={<Navigate to="/" />} />
             <Route path=":id" element={<BoardRoute />}>
               <Route path="link/:id" element={<LinkRoute />} />
             </Route>
@@ -53,6 +57,7 @@ function App() {
         </Route>
         <Route path="login" element={<LoginRoute />} />
         <Route path="signup" element={<SignupLayout />}>
+          <Route index element={<Navigate to="info" />} />
           <Route path="info" element={<SignupInfoRoute />} />
           <Route path="category" element={<SignupCategoryRoute />} />
         </Route>
