@@ -39,11 +39,11 @@ export default function DataProvider({ children }) {
   // add boards to my boards
   useEffect(() => {
     if (fetchMyBoardsState?.res?.data) {
-      const { dataCount, totalPageCount, results } =
-        fetchMyBoardsState.res.data;
-      const processedBoards = {};
-      const processedLinks = {};
-      results.forEach((board) => {});
+      // const { dataCount, totalPageCount, results } =
+      //   fetchMyBoardsState.res.data;
+      // const processedBoards = {};
+      // const processedLinks = {};
+      // results.forEach((board) => {});
     }
   }, [fetchMyBoardsState]);
 
@@ -58,11 +58,17 @@ export default function DataProvider({ children }) {
 
   const value = {
     myBoards,
+    setMyBoards,
     links,
+    setLinks,
     myBoardsCurrentPage,
+    setMyBoardsCurrentPage,
     myBoardsTotalPageCount,
+    setMyBoardsTotalPageCount,
     myBoardsDataCount,
+    setMyBoardsDataCount,
     windowSize,
+    fetchMyBoards,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
