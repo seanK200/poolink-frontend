@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from '../../components/assets/Logo';
 import Button from '../../components/buttons/Button';
@@ -9,8 +9,11 @@ import Page3 from '../../components/landingpage/Page3';
 import Page4 from '../../components/landingpage/Page4';
 import Page5 from '../../components/landingpage/Page5';
 import Page6 from '../../components/landingpage/Page6';
+import { useAuth } from '../../contexts/AuthProvider';
 
 export default function LandingPage() {
+  const { isLoggedIn } = useAuth();
+  if (isLoggedIn()) return <Navigate to="/" replace={true} />;
   return (
     <Container>
       <LandingPageTopbar />

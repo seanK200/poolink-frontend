@@ -83,6 +83,9 @@ export function useManualFetch(method, url, options = null) {
       // useEffect hook will retry once access token is renewed
       if (!isAccessTokenValid) {
         if (!isLoggedIn()) {
+          console.log(
+            `useFetch(${method}, ${url}): Not logged in. Navigate to login.`
+          );
           navigateToLogin();
         }
         return;
@@ -122,6 +125,7 @@ export function useManualFetch(method, url, options = null) {
         // tell AuthProvider that access token is no longer valid
         if (typeof handleTokenExpire === 'function') {
           handleTokenExpire(expiredToken);
+          console.log(`useFetch(${method}, ${url}): Access token expired.`);
         }
 
         // Leave request in loading state

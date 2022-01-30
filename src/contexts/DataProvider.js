@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { throttle } from 'lodash';
 import useFetch from '../hooks/useFetch';
 import { useAuth } from './AuthProvider';
+import { useMatch } from 'react-router-dom';
 
 const DataContext = React.createContext();
 
@@ -188,9 +189,15 @@ export default function DataProvider({ children }) {
     // eslint-disable-next-line
   }, []);
 
+  let isAtLandingPage = useMatch('/welcome/*');
+
   // things to automatically do after login
   useEffect(() => {
-    if (isUserProfileValid(userProfile) && isRefreshTokenValid) {
+    if (
+      isUserProfileValid(userProfile) &&
+      isRefreshTokenValid &&
+      !isAtLandingPage
+    ) {
       fetchCategories();
     }
     // eslint-disable-next-line

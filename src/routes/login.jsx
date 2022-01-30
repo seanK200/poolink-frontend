@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import Logo from '../components/assets/Logo';
 import { GoogleLogin } from 'react-google-login';
@@ -8,7 +8,7 @@ import { LOGIN_MESSAGE } from '../consts/strings';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function LoginRoute({ isRouteModalOpen }) {
-  const { poolinkLogin } = useAuth();
+  const { poolinkLogin, isLoggedIn } = useAuth();
   const [loginMessage, setLoginMessage] = useState('');
   const loginMessageRef = useRef(null);
 
@@ -38,7 +38,7 @@ export default function LoginRoute({ isRouteModalOpen }) {
       await poolinkLogin(googleProfile, googleAccessToken);
       setLoginMessage(LOGIN_MESSAGE.success);
 
-      // Navigate to wherever user came from
+      // Navigate back to wherever the user came from (or home)
       let from = state?.from || '/';
       navigate(from, { replace: true });
     }
@@ -48,18 +48,33 @@ export default function LoginRoute({ isRouteModalOpen }) {
     loginMessageRef.current.style.color = 'red';
     switch (googleError?.error) {
       case 'idpiframe_initialization_failed':
+        setLoginMessage(LOGIN_MESSAGE.error.idpiframe_initialization_failed);
         break;
       case 'popup_closed_by_user':
+        setLoginMessage(LOGIN_MESSAGE.error.popup_closed_by_user);
         break;
       case 'access_denied':
+        setLoginMessage(LOGIN_MESSAGE.error.access_denied);
         break;
       // case 'immediate_failed':
       //   break;
       default:
         break;
     }
-    console.log(googleError);
+    // console.log(googleError);
   };
+
+  useEffect(() => {
+    if (isLoggedIn()) {
+      // Navigate back to wherever the user came from (or home)
+      let from = state?.from || '/';
+      navigate(from, { replace: true });
+    }
+    return () => {
+      setLoginMessage('');
+    };
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <LoginContainer
@@ -70,9 +85,7 @@ export default function LoginRoute({ isRouteModalOpen }) {
       }
     >
       <LoginFormContainer>
-        <div id="login-message" ref={loginMessageRef}>
-          {loginMessage}
-        </div>
+        <div></div>
         <div id="login-form-container">
           <Logo style={{ width: '208px', marginBottom: '48px' }} />
           <GoogleLogin
@@ -84,6 +97,13 @@ export default function LoginRoute({ isRouteModalOpen }) {
             prompt={'select_account'}
             cookiePolicy={'single_host_origin'}
           />
+          <div
+            id="login-message"
+            ref={loginMessageRef}
+            style={{ marginTop: loginMessage ? '24px' : '0' }}
+          >
+            {loginMessage}
+          </div>
         </div>
         <div id="catch-phrase">
           더 나은 링크를 위한 Poolink, 지금 바로 경험해보세요
@@ -120,6 +140,10 @@ const LoginFormContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 40px;
+  & #login-message {
+    line-height: 1.4rem;
+    text-align: center;
+  }
   & #login-form-container {
     display: flex;
     flex-direction: column;
