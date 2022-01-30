@@ -95,7 +95,6 @@ export default function AuthProvider({ children }) {
 
   const navigateToLogin = (modal = false) => {
     if (location.pathname !== '/login') {
-      console.log('navigateToLogin');
       const navigateState = {
         from: location,
       };

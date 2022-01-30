@@ -44,10 +44,21 @@ export default function LoginRoute({ isRouteModalOpen }) {
     }
   };
 
-  const handleGoogleLoginError = async (googleResponse) => {
-    setLoginMessage(LOGIN_MESSAGE.error);
+  const handleGoogleLoginError = async (googleError) => {
     loginMessageRef.current.style.color = 'red';
-    // console.log(googleResponse);
+    switch (googleError?.error) {
+      case 'idpiframe_initialization_failed':
+        break;
+      case 'popup_closed_by_user':
+        break;
+      case 'access_denied':
+        break;
+      // case 'immediate_failed':
+      //   break;
+      default:
+        break;
+    }
+    console.log(googleError);
   };
 
   return (
