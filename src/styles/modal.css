@@ -1,6 +1,6 @@
 .ReactModal__Overlay {
   opacity: 0;
-  transition: opacity 500ms ease-in-out;
+  transition: opacity 100ms ease-in-out;
 }
 
 .ReactModal__Overlay--after-open {
@@ -9,6 +9,19 @@
 
 .ReactModal__Overlay--before-close {
   opacity: 0;
+}
+
+.ReactModal__Content {
+  transform: scale(0.95, 0.95);
+  transition: transform 100ms ease-in-out;
+}
+
+.ReactModal__Content--after-open {
+  transform: scale(1, 1);
+}
+
+.ReactModal__Content--before-close {
+  transform: scale(0.95, 0.95);
 }
 
 .RouteModal__Overlay {

@@ -39,7 +39,7 @@ function App() {
       <Routes location={state?.backgroundLocation || location}>
         <Route path="/" element={<DefaultLayout />}>
           <Route index element={<Navigate to="boards/my" />} />
-          <Route path="boards" element={<BoardsLayout />}>
+          <Route path="boards/*" element={<BoardsLayout />}>
             <Route index element={<Navigate to="my" />} />
             <Route path="my" element={<BoardsMyRoute />} />
             <Route path="shared" element={<BoardsSharedRoute />} />
