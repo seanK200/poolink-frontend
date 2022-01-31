@@ -101,6 +101,7 @@ export default function BoardItem({ boardInfo }) {
 const BoardItemContainer = styled.div`
   width: 345px;
   height: 190px;
+  margin: 16px;
   padding: 28px 24px;
   background-color: white;
   filter: drop-shadow(0 0 8px rgba(219, 224, 231, 0.7));

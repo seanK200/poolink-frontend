@@ -54,7 +54,7 @@ const ListToolBar = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin: 0 0 24px 0;
+  padding: 4px 16px 16px 16px;
 `;
 
 const ListSearchResult = styled.div`
