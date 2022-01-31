@@ -2,6 +2,7 @@ button {
   border: none;
   margin: 0;
   line-height: 1em;
+  font-size: 1rem;
   font-family: Pretendard;
   font-weight: 600;
   background: none;
@@ -42,4 +43,7 @@ button.secondary {
 button.minimal {
   color: var(--color-primary);
   background-color: none;
+  font-size: 1rem;
+  font-weight: 400;
+  height: 24px;
 }

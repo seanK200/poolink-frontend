@@ -17,7 +17,7 @@ export default function Button({ icon, children, ...rest }) {
 const IconContainer = styled.span`
   position: relative;
   display: inline-block;
-  padding: 0;
+  padding: 1px 0 0 0;
   & img {
     height: 1em;
   }
