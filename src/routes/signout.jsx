@@ -7,8 +7,14 @@ import { SIGNOUT_MESSAGE } from '../consts/strings';
 import Loader from '../components/assets/Loader';
 
 export default function SignoutRoute() {
-  const { poolinkRefreshToken, handlePoolinkSignoutSuccess } = useAuth();
-  const [signoutState, signoutFetch] = useFetch('POST', '/users/logout');
+  const {
+    poolinkRefreshToken,
+    handlePoolinkSignoutSuccess,
+    handlePoolinkSignoutError,
+  } = useAuth();
+  const [signoutState, signoutFetch] = useFetch('POST', '/users/logout', {
+    attemptTokenRefresh: false,
+  });
   const [signoutMessage, setSignoutMessage] = useState(SIGNOUT_MESSAGE.before);
 
   // request signout on component mount
@@ -26,10 +32,11 @@ export default function SignoutRoute() {
         setSignoutMessage(SIGNOUT_MESSAGE.success);
         handlePoolinkSignoutSuccess();
       }
-      if (signoutState.err) {
-        setSignoutMessage(SIGNOUT_MESSAGE.error);
-        console.log(signoutState.err);
-      }
+    }
+    if (signoutState.err) {
+      setSignoutMessage(SIGNOUT_MESSAGE.error);
+      handlePoolinkSignoutError();
+      console.log(signoutState.err);
     }
     // eslint-disable-next-line
   }, [signoutState]);

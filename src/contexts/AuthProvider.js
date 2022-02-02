@@ -57,6 +57,7 @@ export default function AuthProvider({ children }) {
   // token valid flags
   const [isAccessTokenValid, setIsAccessTokenValid] = useState(false);
   const [isRefreshTokenValid, setIsRefreshTokenValid] = useState(false);
+  const [initialTokenValidated, setInitialTokenValidated] = useState(true);
 
   // profiles
   const [googleProfile, setGoogleProfile] = useState(initialGoogleProfile);
@@ -110,7 +111,10 @@ export default function AuthProvider({ children }) {
 
   const handleTokenExpire = useCallback(
     (expiredAccessToken) => {
-      if (poolinkAccessToken === expiredAccessToken && isAccessTokenValid) {
+      if (
+        (!expiredAccessToken || poolinkAccessToken === expiredAccessToken) &&
+        isAccessTokenValid
+      ) {
         console.log(`handleTokenExpire`);
         setIsAccessTokenValid(false);
         // make request to refresh access token
@@ -130,11 +134,13 @@ export default function AuthProvider({ children }) {
       isAccessTokenValid,
       isLoggedIn,
       navigateToLogin,
+      initialTokenValidated
     }
   );
   useEffect(() => {
     if (!refreshAccessTokenState.loading) {
       if (refreshAccessTokenState.res?.data) {
+        console.log(`Successfully refreshed access token`);
         setPoolinkAccessToken(
           refreshAccessTokenState.res?.data?.access_token || ''
         );
@@ -153,6 +159,7 @@ export default function AuthProvider({ children }) {
       !isAccessTokenValid &&
       poolinkAccessToken
     ) {
+      console.log(`Requesting access token refresh`);
       requestAccessTokenRefresh({
         data: { refresh_token: poolinkRefreshToken },
       });
@@ -225,6 +232,40 @@ export default function AuthProvider({ children }) {
     navigate('/welcome', { replace: true });
   };
 
+  const handlePoolinkSignoutError = () => {
+    setPoolinkAccessToken('');
+    setPoolinkRefreshToken('');
+    setUserProfile(initialUserProfile);
+    navigate('/welcome', { replace: true });
+  };
+
+  // Initial Token Validation
+  // Check if the stored refresh token is valid
+  // initialTokenValidated will be set to true after initial check 
+  // and will remain true throughout the lifecycle of AuthProvider
+  // prevent any useFetch hooks from running before token validation
+  
+  // const [] = useManualFetch(
+  //   'POST', 
+  //   '/users/token/refresh', 
+  //   {
+  //     useToken: false,
+  //     attemptTokenRefresh: false,
+  //     poolinkAccessToken,
+  //     handleTokenExpire,
+  //     isAccessTokenValid,
+  //     isLoggedIn,
+  //     navigateToLogin,
+  //     initialTokenValidated
+  //   }
+  // )
+
+  // useEffect(() => {
+  //   if (!initialTokenValidated && poolinkRefreshToken) {
+
+  //   }
+  // }, [poolinkRefreshToken]);
+
   useEffect(() => {
     if (poolinkAccessToken) {
       setIsAccessTokenValid(true);
@@ -249,6 +290,7 @@ export default function AuthProvider({ children }) {
     poolinkRefreshToken,
     isAccessTokenValid,
     isRefreshTokenValid,
+    initialTokenValidated,
     isLoggedIn,
     isUserProfileValid,
     isUserProfileComplete,
@@ -256,6 +298,7 @@ export default function AuthProvider({ children }) {
     poolinkLogin,
     poolinkSignout,
     handlePoolinkSignoutSuccess,
+    handlePoolinkSignoutError,
     navigateToLogin,
   };
 

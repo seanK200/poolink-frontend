@@ -18,11 +18,17 @@ export default function DataProvider({ children }) {
   const [links, setLinks] = useState({});
   const [categories, setCategories] = useState([]);
 
-  // GET /boards/my
-  const [myBoardIds, setMyBoardIds] = useState([]);
+  // GET /boards/my (my boards)
+  const [myBoardIds, setMyBoardIds] = useState([]); // paginated (nested arrays)
   const [myBoardsCurrentPage, setMyBoardsCurrentPage] = useState(1);
   const [myBoardsTotalPageCount, setMyBoardsTotalPageCount] = useState(1);
   const [myBoardsDataCount, setMyBoardsDataCount] = useState(0);
+
+  // GET /links/ (explore)
+  const [exploreLinkIds, setExploreLinkIds] = useState([]); // paginated (nested arrays)
+  const [exploreCurrentPage, setExploreCurrentPage] = useState(1);
+  const [exploreTotalPageCount, setExploreTotalPageCount] = useState(1);
+  const [exploreDataCount, setExploreDataCount] = useState(0);
 
   // Manage window resize event
   const [windowSize, setWindowSize] = useState({
@@ -39,7 +45,7 @@ export default function DataProvider({ children }) {
 
   // data updaters
   const updateBoards = (processedBoards, pageNum = 0) => {
-    // processedBoards must be in array form
+    // processedBoards must be in object form
     setBoards((prev) => {
       const prevBoards = { ...prev }; // make a copy
 
@@ -72,8 +78,8 @@ export default function DataProvider({ children }) {
     });
   };
 
-  const updateLinks = (processedLinks, pageNum = 0, boardId = 0) => {
-    // processedLinks must be in array form
+  const updateLinks = (processedLinks, pageNum = 0, boardIds = []) => {
+    // processedLinks must be in object form
     setLinks((prev) => {
       const prevLinks = { ...prev }; // make a copy
 
@@ -91,9 +97,9 @@ export default function DataProvider({ children }) {
 
       // remove all links associated to this board
       // to handle links deleted from this board
-      if (boardId && boardId > 0) {
+      if (boardIds.length && boardIds.length > 0) {
         for (const linkId in prevLinks) {
-          if (prevLinks[linkId].board === boardId) {
+          if (boardIds.includes(prevLinks[linkId].board)) {
             prevLinks[linkId] = null;
           }
         }
@@ -114,7 +120,7 @@ export default function DataProvider({ children }) {
   };
 
   // FETCHERS
-  // My boards
+  // FETCHER: My boards
   const [fetchMyBoardsState, fetchMyBoards] = useFetch('GET', '/boards/my');
   useEffect(() => {
     // callback after my boards are fetched
@@ -129,21 +135,28 @@ export default function DataProvider({ children }) {
       setMyBoardsDataCount(dataCount); // update total number of my boards
 
       // process boards and links
+      const currentTime = new Date().getTime();
       const processedBoards = {};
       const processedLinks = {};
+      const boardIds = []; // store board ids in myBoardIds
       results.forEach((board) => {
         processedBoards[board.board_id] = {
           ...board,
           links: board.links.map((link) => link.link_id), // store only link IDs
-          page: currentPage, // store pagination information
+          page: currentPage, // store pagination information,
+          lastUpdate: currentTime, // (cache) last fetched time
         };
+
         board.links.forEach((link) => {
-          processedLinks[link.link_id] = link;
+          processedLinks[link.link_id] = {
+            ...link,
+            lastUpdate: currentTime,
+          };
         });
+
+        boardIds.push(board.board_id);
       });
 
-      // store board ids in myBoardIds
-      const boardIds = results.map((board) => board.board_id);
       setMyBoardIds((prev) => {
         // discard all pages later than the current one loading
         // in case of out of order page fetch, check length of myBoardIds first
@@ -164,10 +177,104 @@ export default function DataProvider({ children }) {
 
       // store processed boards and links
       updateBoards(processedBoards);
-      updateLinks(processedLinks);
+      updateLinks(processedLinks, 0, [boardIds]);
+    } else if (fetchMyBoardsState.err) {
+      // TODO Error handling
+      // TODO invalid page (404)
     }
     // eslint-disable-next-line
   }, [fetchMyBoardsState]);
+
+  // fetch individual board
+  const [fetchBoardState, fetchBoard] = useFetch('GET', '/boards/:id/');
+  useEffect(() => {
+    const { loading, res, err } = fetchBoardState;
+    if (!loading) {
+      if (res) {
+        const boardInfo = res?.data;
+        if (boardInfo) {
+          const processedLinks = {};
+          const processedBoards = {};
+          const currentTime = new Date().getTime();
+
+          // process board
+          processedBoards[boardInfo.board_id] = {
+            ...boardInfo,
+            links: boardInfo.links.map((link) => link.link_id),
+            lastUpdate: currentTime,
+          };
+
+          // process boards
+          boardInfo.links.forEach((link) => {
+            processedLinks[link.link_id] = {
+              ...link,
+              lastUpdate: currentTime,
+            };
+          });
+
+          updateBoards(processedBoards);
+          updateLinks(processedLinks, 0, [boardInfo.board_id]);
+        }
+      } else if (err) {
+      }
+    }
+  }, [fetchBoardState]);
+
+  // Fetch Explore links
+  const [exploreFetchState, fetchExploreLinks] = useFetch('GET', '/links/');
+  useEffect(() => {
+    const { loading, res, err, fetchArgs } = exploreFetchState;
+    if (!loading) {
+      if (res?.data) {
+        // Store pagination info
+        const currentPage = fetchArgs?.query?.page || 1;
+        setExploreCurrentPage(currentPage);
+        const { dataCount, totalPageCount, results } = res.data;
+        setExploreTotalPageCount(totalPageCount);
+        setExploreDataCount(dataCount);
+
+        // Process links
+        const boardIdsToFetch = [];
+        const linkIds = [];
+        const processedLinks = {};
+        const currentTime = new Date().getTime();
+        results.forEach((link) => {
+          processedLinks[link.link_id] = {
+            ...link,
+            page: currentPage,
+            lastUpdate: currentTime,
+          };
+          linkIds.push(link.link_id);
+          boardIdsToFetch.push(link.board);
+        });
+
+        // store results
+        setExploreLinkIds((prev) => {
+          // discard all pages later than the current one loading
+          // in case of out of order page fetch, check length of exploreLinkIds first
+          const newExploreLinkIds = prev.slice(
+            0,
+            currentPage <= prev.length ? currentPage : prev.length
+          );
+
+          // make sure that exploreLinkIds[currentPage - 1] exists
+          while (newExploreLinkIds.length < currentPage) {
+            newExploreLinkIds.push([]);
+          }
+
+          // append the link IDs
+          newExploreLinkIds[currentPage - 1] = linkIds;
+          return newExploreLinkIds;
+        });
+
+        // store processed links
+        updateLinks(processedLinks, currentPage);
+      } else if (err) {
+        // TODO Error handling
+        // Invalid page (404)
+      }
+    }
+  }, [exploreFetchState]);
 
   // Categories
   const [fetchCategoriesState, fetchCategories] = useFetch(
@@ -198,7 +305,7 @@ export default function DataProvider({ children }) {
       isRefreshTokenValid &&
       !isAtLandingPage
     ) {
-      fetchCategories();
+      // fetchCategories();
     }
     // eslint-disable-next-line
   }, [userProfile, isRefreshTokenValid]);
@@ -213,6 +320,14 @@ export default function DataProvider({ children }) {
     fetchMyBoardsState,
     fetchMyBoards,
     categories,
+    exploreLinkIds,
+    exploreCurrentPage,
+    exploreTotalPageCount,
+    exploreDataCount,
+    exploreFetchState,
+    fetchExploreLinks,
+    fetchBoardState,
+    fetchBoard,
     windowSize,
   };
 
