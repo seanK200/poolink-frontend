@@ -10,6 +10,7 @@ import { useData } from '../contexts/DataProvider';
 import { breakpoints } from '../consts/responsive';
 import HideMobile from './utilites/HideMobile';
 import AccountProfile from './AccountProfile';
+import NotificationsButton from './buttons/NotificationsButton';
 
 export default function Topbar({ showSidebar }) {
   const { windowSize } = useData();
@@ -39,7 +40,7 @@ export default function Topbar({ showSidebar }) {
       <div>
         <ShowMobile>
           <Button
-            style={{ marginLeft: '8px', marginRight: '24px' }}
+            style={{ marginLeft: '8px' }}
             className="secondary small"
             icon={PlusSvg}
           >
@@ -47,6 +48,7 @@ export default function Topbar({ showSidebar }) {
           </Button>
         </ShowMobile>
         <HideMobile>
+          <NotificationsButton style={{ marginRight: '24px' }} />
           <AccountProfile />
         </HideMobile>
       </div>
@@ -60,10 +62,15 @@ const StyledTopbar = styled.div`
   justify-content: space-between;
   display: flex;
   align-items: center;
+  padding-right: 32px;
   & > div {
     display: flex;
+    align-items: center;
   }
   & button {
     flex-shrink: 0;
+  }
+  @media only screen and (max-width: ${breakpoints.sm}px) {
+    padding-right: 24px;
   }
 `;

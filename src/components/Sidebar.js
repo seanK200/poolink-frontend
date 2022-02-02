@@ -11,25 +11,45 @@ import Nav from '../components/Nav';
 import CollapsibleSection from '../components/CollapsibleSection';
 import FavoritesIcon from '../components/assets/FavoritesIcon';
 import { XLg } from 'react-bootstrap-icons';
+import HideMobile from './utilites/HideMobile';
+import ShowMobile from './utilites/ShowMobile';
+import AccountProfile from './AccountProfile';
+import NotificationsButton from './buttons/NotificationsButton';
 
 export default function Sidebar({ isVisible, hideSidebar }) {
   return (
     <StyledSidebar className={isVisible ? 'visible' : ''} onClick={hideSidebar}>
-      <Logo
-        className="logo-sidebar"
-        style={{ width: '109px', margin: '32px 0' }}
-      />
-      <XLg
-        style={{
-          cursor: 'pointer',
-          color: 'black',
-          position: 'absolute',
-          top: '36px',
-          right: '24px',
-        }}
-        className="mobile-close-sidebar"
-      />
-      <AddLinkButton />
+      <HideMobile>
+        <Logo
+          className="logo-sidebar"
+          style={{ width: '109px', margin: '0 0 32px 0' }}
+        />
+      </HideMobile>
+      <ShowMobile>
+        <div
+          style={{
+            width: '100%',
+            display: 'flex',
+            marginBottom: '32px',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <XLg
+            style={{
+              cursor: 'pointer',
+              color: 'black',
+            }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <NotificationsButton style={{ marginRight: '16px' }} />
+            <AccountProfile />
+          </div>
+        </div>
+      </ShowMobile>
+      <HideMobile>
+        <AddLinkButton />
+      </HideMobile>
       <Nav text="내 보드" to="/boards/my" iconSvg={BoardListSvg} />
       <Nav text="공유 보드" to="/boards/shared" iconSvg={SharedBoardsSvg} />
       <Nav text="탐색" to="/explore" iconSvg={ExploreSvg} />
@@ -54,7 +74,7 @@ export default function Sidebar({ isVisible, hideSidebar }) {
 const StyledSidebar = styled.div`
   width: 248px;
   height: 100vh;
-  padding: 0 24px 24px 24px;
+  padding: 32px 24px 24px 24px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -64,9 +84,6 @@ const StyledSidebar = styled.div`
   flex-shrink: 0;
   & > * {
     flex-shrink: 0;
-  }
-  & .mobile-close-sidebar {
-    display: none;
   }
   @media only screen and (max-width: 768px) {
     position: absolute;
@@ -78,9 +95,6 @@ const StyledSidebar = styled.div`
     &.visible {
       opacity: 1;
       transform: translateX(0);
-    }
-    & .mobile-close-sidebar {
-      display: flex;
     }
   }
 `;
