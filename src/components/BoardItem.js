@@ -1,10 +1,14 @@
 import React from 'react';
 import { useData } from '../contexts/DataProvider';
+import { useAuth } from '../contexts/AuthProvider';
 import Button from './buttons/Button';
 import styled from 'styled-components';
 
 export default function BoardItem({ boardInfo }) {
   const { links } = useData();
+
+  const { userProfile } = useAuth();
+
   return (
     <BoardItemContainer>
       <div
@@ -15,20 +19,22 @@ export default function BoardItem({ boardInfo }) {
       >
         <BoardName className="no-scrollbar">{boardInfo.name}</BoardName>
         <ButtonContainer>
-          <Button
-            icon={
-              <img
-                src={process.env.PUBLIC_URL + '/assets/ScrapIcon.png'}
-                alt="Scrap"
-              />
-            }
-            style={{
-              width: '25px',
-              height: '25px',
-              fontSize: '1.1rem',
-              marginRight: '5px',
-            }}
-          />
+          {boardInfo.user !== userProfile.userId && (
+            <Button
+              icon={
+                <img
+                  src={process.env.PUBLIC_URL + '/assets/ScrapIcon.png'}
+                  alt="Scrap"
+                />
+              }
+              style={{
+                width: '25px',
+                height: '25px',
+                fontSize: '1.1rem',
+                marginRight: '5px',
+              }}
+            />
+          )}
           <Button
             icon={
               <img
