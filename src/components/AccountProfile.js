@@ -129,7 +129,6 @@ export default function AccountProfile() {
 const Container = styled.div`
   position: relative;
   cursor: pointer;
-  margin: 0 32px 0 16px;
   & img {
     --horizontal-position: 0px;
     position: relative;
