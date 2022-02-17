@@ -24,9 +24,7 @@ export default function DefaultLayout() {
       />
       <div className="view-container no-scrollbar">
         <Topbar showSidebar={showSidebar} />
-        <div className="view-content">
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </Container>
   );

@@ -23,14 +23,17 @@ export default function BoardsMyRoute() {
 
   return (
     <Container>
-      {myBoardIds.length > 0 &&
-        myBoardIds[myBoardsCurrentPage - 1].map((boardId, idx) => {
-          if (boards[boardId]) {
-            return <BoardItem boardInfo={boards[boardId]} key={idx} />;
-          } else {
-            return <div key={idx}>Loading...</div>;
-          }
-        })}
+      <LinkContainer>
+        {myBoardIds.length > 0 &&
+          myBoardIds[myBoardsCurrentPage - 1].map((boardId, idx) => {
+            if (boards[boardId]) {
+              return <BoardItem boardInfo={boards[boardId]} key={idx} />;
+            } else {
+              return <div key={idx}>Loading...</div>;
+            }
+          })}
+      </LinkContainer>
+      <SeeMoreButton className="secondary">더 보기</SeeMoreButton>
     </Container>
   );
 }
@@ -38,5 +41,15 @@ export default function BoardsMyRoute() {
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
+`;
+
+const LinkContainer = styled.div`
+  display: flex;
   flex-wrap: wrap;
+`;
+
+const SeeMoreButton = styled.button`
+  height: 40px;
+  border: 1px solid var(--color-secondary);
 `;

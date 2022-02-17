@@ -3,14 +3,13 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import RouteModal from './components/modals/RouteModal';
 import DefaultLayout from './routes';
-import BoardLayout from './routes/board';
-import BoardRoute from './routes/board/$id';
-import LinkRoute from './routes/board/link/$id';
-import BoardsLayout from './routes/boards';
+import BoardRoute from './routes/board/$boardId';
+import BoardsLayout from './routes/boards/index';
 import BoardsMyRoute from './routes/boards/my';
 import BoardsSharedRoute from './routes/boards/shared';
 import ExploreRoute from './routes/explore';
 import GoogleOauthRoute from './routes/googleoauth';
+import LinkRoute from './routes/link/$linkId';
 import LoginRoute from './routes/login';
 import NotFound from './routes/notfound';
 import SettingsLayout from './routes/settings';
@@ -49,12 +48,8 @@ function App() {
             <Route index element={<Navigate to="general" />} />
             <Route path="general" element={<SettingsGeneralRoute />} />
           </Route>
-          <Route path="board" element={<BoardLayout />}>
-            <Route index element={<Navigate to="/" />} />
-            <Route path=":id" element={<BoardRoute />}>
-              <Route path="link/:id" element={<LinkRoute />} />
-            </Route>
-          </Route>
+          <Route path="board/:boardId" element={<BoardRoute />} />
+          <Route path="link/:linkId" element={<LinkRoute />} />
         </Route>
         <Route path="login" element={<LoginRoute />} />
         <Route path="signup" element={<SignupLayout />}>

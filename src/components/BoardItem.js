@@ -3,6 +3,8 @@ import { useData } from '../contexts/DataProvider';
 import { useAuth } from '../contexts/AuthProvider';
 import Button from './buttons/Button';
 import styled from 'styled-components';
+import ScrapButton from './buttons/ScrapButton';
+import MenuButton from './buttons/MenuButton';
 
 export default function BoardItem({ boardInfo }) {
   const { links } = useData();
@@ -19,35 +21,8 @@ export default function BoardItem({ boardInfo }) {
       >
         <BoardName className="no-scrollbar">{boardInfo.name}</BoardName>
         <ButtonContainer>
-          {boardInfo.user !== userProfile.userId && (
-            <Button
-              icon={
-                <img
-                  src={process.env.PUBLIC_URL + '/assets/ScrapIcon.png'}
-                  alt="Scrap"
-                />
-              }
-              style={{
-                width: '25px',
-                height: '25px',
-                fontSize: '1.1rem',
-                marginRight: '5px',
-              }}
-            />
-          )}
-          <Button
-            icon={
-              <img
-                src={process.env.PUBLIC_URL + '/assets/KebabButton.png'}
-                alt="Menu"
-              />
-            }
-            style={{
-              width: '25px',
-              height: '25px',
-              fontSize: '1.1rem',
-            }}
-          />
+          {boardInfo.user !== userProfile.userId && <ScrapButton />}
+          <MenuButton />
         </ButtonContainer>
       </div>
       <div

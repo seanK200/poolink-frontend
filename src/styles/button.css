@@ -17,7 +17,6 @@ button.tiny {
   font-size: 0.875rem;
   font-weight: 400;
   border-radius: 10px;
-  border-color: rgba(0, 0, 0, 0);
 }
 
 button.small {
@@ -31,13 +30,11 @@ button.small {
 button.primary {
   color: white;
   background-color: var(--color-primary);
-  border-color: var(--color-primary);
 }
 
 button.secondary {
   color: var(--color-primary);
   background-color: var(--color-secondary);
-  border-color: var(--color-secondary);
 }
 
 button.minimal {
