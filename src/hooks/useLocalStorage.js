@@ -21,7 +21,7 @@ export default function useLocalStorage(
   const storageListener = useCallback(
     (e) => {
       if (e.key === prefixedKey && e.oldValue !== e.newValue) {
-        setValue(e.newValue);
+        setValue(JSON.parse(e.newValue));
       }
     },
     [prefixedKey]
