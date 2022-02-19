@@ -20,3 +20,6 @@ export const SIGNOUT_MESSAGE = {
   success: '로그아웃 성공',
   error: '로그아웃에 실패하였습니다.',
 };
+
+export const MODAL_CLOSE_MESSAGE = '창을 닫으시겠습니까?';
+export const DATA_LOSS_WARNING = '저장되지 않은 데이터는 지워질 수 있습니다.';

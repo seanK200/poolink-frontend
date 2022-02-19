@@ -1,28 +1,29 @@
 import React from 'react';
 import ReactModal from 'react-modal';
-import { useNavigate } from 'react-router-dom';
-import ModalHeader from './ModalHeader';
+import { useData } from '../../contexts/DataProvider';
+import { matchPath } from 'react-router-dom';
 
 export default function RouteModal({ headerType, children, ...rest }) {
-  let navigate = useNavigate();
+  const { handleRouteModalClose } = useData();
 
-  const handleModalClose = () => {
-    navigate(-1);
+  const getModalClassName = () => {
+    let className = 'RouteModal__Content';
+    if (matchPath({ path: '/link/new' }, '/link/new')) {
+      className += ' RouteModal__Content-small';
+    }
+    return className;
   };
 
   return (
     <ReactModal
-      onRequestClose={handleModalClose}
-      className="RouteModal__Content"
+      onRequestClose={handleRouteModalClose}
+      className={getModalClassName()}
       overlayClassName="RouteModal__Overlay"
       shouldCloseOnEsc={true}
       shouldCloseOnOverlayClick={true}
       closeTimeoutMS={500}
       {...rest}
     >
-      {headerType && (
-        <ModalHeader headerType={headerType} onModalClose={handleModalClose} />
-      )}
       {children}
     </ReactModal>
   );

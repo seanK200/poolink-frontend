@@ -1,10 +1,19 @@
 import React from 'react';
 import { PlusCircleFill } from 'react-bootstrap-icons';
 import styled from 'styled-components';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function AddLinkButton(props) {
+  let location = useLocation();
+  const navigate = useNavigate();
+
+  const handleClick = (e) => {
+    if (typeof props?.onClick === 'function') props.onClick(e);
+    navigate('/link/new', { state: { backgroundLocation: location } });
+  };
+
   return (
-    <StyledAddLinkButton {...props}>
+    <StyledAddLinkButton onClick={handleClick} {...props}>
       <ButtonIcon>
         <PlusCircleFill />
       </ButtonIcon>

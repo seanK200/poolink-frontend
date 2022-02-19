@@ -5,8 +5,9 @@ import { useAuth } from '../contexts/AuthProvider';
 import useFetch from '../hooks/useFetch';
 import { SIGNOUT_MESSAGE } from '../consts/strings';
 import Loader from '../components/assets/Loader';
+import ModalHeader from '../components/modals/ModalHeader';
 
-export default function SignoutRoute() {
+export default function SignoutRoute({ isRouteModalOpen }) {
   const {
     poolinkRefreshToken,
     handlePoolinkSignoutSuccess,
@@ -42,13 +43,16 @@ export default function SignoutRoute() {
   }, [signoutState]);
 
   return (
-    <Container>
-      <Logo style={{ width: '240px', marginBottom: '16px' }} />
-      <div>
-        <p>{signoutMessage}</p>
-        <Loader size="32px" />
-      </div>
-    </Container>
+    <React.Fragment>
+      {isRouteModalOpen && <ModalHeader headerType="floating" />}
+      <Container>
+        <Logo style={{ width: '240px', marginBottom: '16px' }} />
+        <div>
+          <p>{signoutMessage}</p>
+          <Loader size="32px" />
+        </div>
+      </Container>
+    </React.Fragment>
   );
 }
 

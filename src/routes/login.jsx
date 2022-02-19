@@ -6,6 +6,7 @@ import { GOOGLE_CLIENT_ID, useAuth } from '../contexts/AuthProvider';
 import { breakpoints } from '../consts/responsive';
 import { LOGIN_MESSAGE } from '../consts/strings';
 import { useLocation, useNavigate } from 'react-router-dom';
+import ModalHeader from '../components/modals/ModalHeader';
 
 export default function LoginRoute({ isRouteModalOpen }) {
   const { poolinkLogin, isLoggedIn } = useAuth();
@@ -13,8 +14,8 @@ export default function LoginRoute({ isRouteModalOpen }) {
   const loginMessageRef = useRef(null);
 
   let location = useLocation();
-  let navigate = useNavigate();
   let state = location?.state;
+  let navigate = useNavigate();
 
   const handleGoogleLogin = async (googleResponse) => {
     if (googleResponse.profileObj) {
@@ -78,45 +79,48 @@ export default function LoginRoute({ isRouteModalOpen }) {
   }, []);
 
   return (
-    <LoginContainer
-      className={
-        isRouteModalOpen
-          ? 'RouteModal__Content-container'
-          : 'container-no-modal'
-      }
-    >
-      <LoginFormContainer>
-        <div></div>
-        <div id="login-form-container">
-          <Logo style={{ width: '208px', marginBottom: '48px' }} />
-          <GoogleLogin
-            clientId={GOOGLE_CLIENT_ID}
-            buttonText="Google로 로그인"
-            disabledStyle={{ visibility: 'hidden' }}
-            onSuccess={handleGoogleLogin}
-            onFailure={handleGoogleLoginError}
-            prompt={'select_account'}
-            cookiePolicy={'single_host_origin'}
-          />
-          <div
-            id="login-message"
-            ref={loginMessageRef}
-            style={{ marginTop: loginMessage ? '24px' : '0' }}
-          >
-            {loginMessage}
+    <React.Fragment>
+      {isRouteModalOpen && <ModalHeader headerType="floating" />}
+      <LoginContainer
+        className={
+          isRouteModalOpen
+            ? 'RouteModal__Content-container'
+            : 'container-no-modal'
+        }
+      >
+        <LoginFormContainer>
+          <div></div>
+          <div id="login-form-container">
+            <Logo style={{ width: '208px', marginBottom: '48px' }} />
+            <GoogleLogin
+              clientId={GOOGLE_CLIENT_ID}
+              buttonText="Google로 로그인"
+              disabledStyle={{ visibility: 'hidden' }}
+              onSuccess={handleGoogleLogin}
+              onFailure={handleGoogleLoginError}
+              prompt={'select_account'}
+              cookiePolicy={'single_host_origin'}
+            />
+            <div
+              id="login-message"
+              ref={loginMessageRef}
+              style={{ marginTop: loginMessage ? '24px' : '0' }}
+            >
+              {loginMessage}
+            </div>
           </div>
-        </div>
-        <div id="catch-phrase">
-          더 나은 링크를 위한 Poolink, 지금 바로 경험해보세요
-        </div>
-      </LoginFormContainer>
-      <ImageContainer>
-        <img
-          src={process.env.PUBLIC_URL + '/images/LoginSplash.png'}
-          alt="Poolink Login"
-        />
-      </ImageContainer>
-    </LoginContainer>
+          <div id="catch-phrase">
+            더 나은 링크를 위한 Poolink, 지금 바로 경험해보세요
+          </div>
+        </LoginFormContainer>
+        <ImageContainer>
+          <img
+            src={process.env.PUBLIC_URL + '/images/LoginSplash.png'}
+            alt="Poolink Login"
+          />
+        </ImageContainer>
+      </LoginContainer>
+    </React.Fragment>
   );
 }
 

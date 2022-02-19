@@ -1,12 +1,19 @@
 import React from 'react';
 import styled from 'styled-components';
 import { XLg } from 'react-bootstrap-icons';
+import { useData } from '../../contexts/DataProvider';
 
 export default function ModalHeader({
   heading,
   headerType,
   onModalClose: handleModalClose,
 }) {
+  const { handleRouteModalClose } = useData();
+  const handleCloseClick = () => {
+    if (typeof handleModalClose === 'function') handleModalClose();
+    handleRouteModalClose();
+  };
+
   return (
     <Container className={headerType}>
       <Heading>{heading ? heading : ''}</Heading>
@@ -16,7 +23,7 @@ export default function ModalHeader({
           color: 'black',
           fontSize: '1.4rem',
         }}
-        onClick={handleModalClose}
+        onClick={handleCloseClick}
       />
     </Container>
   );

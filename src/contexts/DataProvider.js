@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { throttle } from 'lodash';
 import useFetch from '../hooks/useFetch';
+import { DATA_LOSS_WARNING, MODAL_CLOSE_MESSAGE } from '../consts/strings';
+import { useNavigate } from 'react-router-dom';
 
 const DataContext = React.createContext();
 
@@ -56,12 +58,20 @@ export default function DataProvider({ children }) {
     height: window.innerHeight,
   });
 
+  const navigate = useNavigate();
+
   const handleWindowResize = throttle(() => {
     setWindowSize({
       width: window.innerWidth,
       height: window.innerHeight,
     });
   }, 500); // event fires only once every 500ms
+
+  const handleRouteModalClose = (confirmBeforeClose = false) => {
+    const confirmMsg = MODAL_CLOSE_MESSAGE + ' ' + DATA_LOSS_WARNING;
+    const confirmed = confirmBeforeClose ? window.confirm(confirmMsg) : true;
+    if (confirmed) navigate(-1);
+  };
 
   // data updaters
   const updateBoards = (processedBoards, pageNum = 0) => {
@@ -337,6 +347,7 @@ export default function DataProvider({ children }) {
     fetchBoardState,
     fetchBoard,
     windowSize,
+    handleRouteModalClose,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

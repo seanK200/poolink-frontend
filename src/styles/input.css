@@ -1,8 +1,64 @@
-input {
-  border: none;
+input,
+div.fake-input {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-g8);
+  border-radius: 10px;
   background: none;
   font-size: 1rem;
-  padding: 0;
-  margin: 0;
+  padding: 16px;
+  margin: 0 0 4px 0;
   width: 100%;
+}
+
+input::placeholder,
+div.fake-input.empty {
+  color: var(--color-g6);
+}
+
+textarea {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--color-g8);
+  border-radius: 10px;
+  background: none;
+  font-size: 1rem;
+  padding: 16px;
+  margin: 0 0 4px 0;
+  width: 100%;
+  font-family: Pretendard;
+}
+
+input.invalid,
+textarea.invalid {
+  border-color: var(--color-red);
+}
+
+div.input-message {
+  padding: 0px;
+}
+
+.invalid ~ div.input-message {
+  color: var(--color-red);
+}
+
+label {
+  font-weight: 500;
+  font-size: 1rem;
+  color: black;
+  margin-bottom: 8px;
+}
+
+label span.required {
+  display: inline-block;
+  color: var(--color-primary);
+  margin-left: 4px;
+}
+
+div.input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  position: relative;
 }

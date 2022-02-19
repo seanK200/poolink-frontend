@@ -10,6 +10,7 @@ import BoardsSharedRoute from './routes/boards/shared';
 import ExploreRoute from './routes/explore';
 import GoogleOauthRoute from './routes/googleoauth';
 import LinkRoute from './routes/link/$linkId';
+import AddLinkRoute from './routes/link/new';
 import LoginRoute from './routes/login';
 import NotFound from './routes/notfound';
 import SettingsLayout from './routes/settings';
@@ -69,10 +70,14 @@ function App() {
           element={<Navigate to="notfound" state={{ from: location }} />}
         />
       </Routes>
-      <RouteModal isOpen={isRouteModalOpen} headerType="floating">
+      <RouteModal isOpen={isRouteModalOpen}>
         <Routes>
           <Route path="login" element={<LoginRoute isRouteModalOpen />} />
-          <Route path="signout" element={<SignoutRoute />} />
+          <Route path="signout" element={<SignoutRoute isRouteModalOpen />} />
+          <Route
+            path="link/new"
+            element={<AddLinkRoute isRouteModalOpen />}
+          ></Route>
           <Route path="*" element={<React.Fragment />} />
         </Routes>
       </RouteModal>

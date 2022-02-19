@@ -35,11 +35,13 @@
 }
 
 .RouteModal__Content {
+  width: 100%;
+  max-width: calc(100vw - 160px);
+  min-height: calc(100vh - 160px);
   position: absolute;
-  top: 80px;
-  left: 80px;
-  right: 80px;
-  bottom: 80px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: #fff;
   overflow: auto;
   border-radius: 10px;
@@ -50,17 +52,30 @@
   flex-direction: column;
 }
 
+.RouteModal__Content-small {
+  max-width: 552px;
+  min-height: auto;
+}
+
 .RouteModal__Content-container {
   flex-grow: 1;
   overflow: auto;
 }
 
+.RouteModal__Content-small > .RouteModal__Content-container {
+  padding: 16px 24px;
+}
+
 @media only screen and (max-width: 768px) {
   .RouteModal__Content {
+    width: auto;
+    max-width: none;
+    transform: none;
     position: absolute;
-    top: 24px;
-    left: 24px;
-    right: 24px;
-    bottom: 24px;
+    top: 32px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    border-radius: 0px;
   }
 }
