@@ -224,3 +224,5 @@ const LinkContainer = styled.div`
   align-items: flex-start;
   flex-wrap: wrap;
 `;
+
+boardInfo.user == 
