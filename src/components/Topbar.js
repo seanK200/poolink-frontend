@@ -61,6 +61,7 @@ const StyledTopbar = styled.div`
   height: 88px;
   justify-content: space-between;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   padding-right: 32px;
   & > div {
