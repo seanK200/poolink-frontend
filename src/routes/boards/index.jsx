@@ -9,8 +9,8 @@ export default function BoardsLayout() {
   return (
     <div className="view-content">
       <BlueContainer>
-        <ListToolBar>
-          <ListSearchResult>
+        <ToolBar>
+          <NumberOfBoards>
             <Routes>
               <Route
                 path="my"
@@ -18,7 +18,7 @@ export default function BoardsLayout() {
               />
               <Route path="shared" element={`공유 보드 0개`} />
             </Routes>
-          </ListSearchResult>
+          </NumberOfBoards>
           <ButtonContainer>
             <Button
               className="minimal"
@@ -44,7 +44,7 @@ export default function BoardsLayout() {
               선택하기
             </Button>
           </ButtonContainer>
-        </ListToolBar>
+        </ToolBar>
         <Outlet />
       </BlueContainer>
     </div>
@@ -55,14 +55,14 @@ const BlueContainer = styled.div`
   width: 100%;
 `;
 
-const ListToolBar = styled.div`
+const ToolBar = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
   padding: 4px 16px 16px 16px;
 `;
 
-const ListSearchResult = styled.div`
+const NumberOfBoards = styled.div`
   color: var(--color-g5);
 `;
 

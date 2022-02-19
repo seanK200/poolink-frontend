@@ -13,7 +13,7 @@ export default function BoardRoute({ boardInfo }) {
           <BoardNameAndScrapContainer>
             <BoardNameContainer>
               <BoardName>내이름은보드다</BoardName>
-              <ButtonContainer>
+              <ButtonsContainer>
                 <Button
                   icon={
                     <img
@@ -43,7 +43,7 @@ export default function BoardRoute({ boardInfo }) {
                     margin: '0 14px',
                   }}
                 />
-              </ButtonContainer>
+              </ButtonsContainer>
             </BoardNameContainer>
             <BlueButton>공유하기</BlueButton>
           </BoardNameAndScrapContainer>
@@ -53,9 +53,41 @@ export default function BoardRoute({ boardInfo }) {
           <HashTags>#여행 #공간 #힐링</HashTags>
         </RightBoardInfoContainer>
       </BoardInfoContainer>
-      <div className="view-content">
-        <NumberOfLinks>내 링크 2개</NumberOfLinks>
+      <div
+        className="view-content no-scrollbar"
+        style={{ paddingRight: '32px' }}
+      >
+        <ToolBar>
+          <NumberOfLinks>내 링크 2개</NumberOfLinks>
+          <SelectAndViewModeContainer>
+            <Button
+              className="minimal"
+              icon={
+                <img
+                  src={process.env.PUBLIC_URL + '/assets/SelectIcon.png'}
+                  alt="Select"
+                />
+              }
+              style={{ marginRight: '14px' }}
+            >
+              선택하기
+            </Button>
+            <Button
+              className="minimal"
+              icon={
+                <img
+                  src={process.env.PUBLIC_URL + '/assets/GridIcon.png'}
+                  alt="ChangeViewMode"
+                />
+              }
+            ></Button>
+          </SelectAndViewModeContainer>
+        </ToolBar>
         <LinkContainer>
+          <LinkItem linkInfo={linkInfo} />
+          <LinkItem linkInfo={linkInfo2} />
+          <LinkItem linkInfo={linkInfo} />
+          <LinkItem linkInfo={linkInfo2} />
           <LinkItem linkInfo={linkInfo} />
           <LinkItem linkInfo={linkInfo2} />
         </LinkContainer>
@@ -127,7 +159,7 @@ const BoardName = styled.div`
 `;
 /*이름을 너무 길게 쓰면 오똑하지*/
 
-const ButtonContainer = styled.div`
+const ButtonsContainer = styled.div`
   display: flex;
 `;
 
@@ -168,10 +200,10 @@ const HashTags = styled.div`
   margin: 0 0 24px 0;
 `;
 
-const LinkContainer = styled.div`
+const ToolBar = styled.div`
+  width: 100%;
   display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  justify-content: space-between;
 `;
 
 const NumberOfLinks = styled.div`
@@ -181,4 +213,14 @@ const NumberOfLinks = styled.div`
   line-height: 1.5rem;
   margin: 0 0 11px 11px;
   color: var(--color-g5);
+`;
+
+const SelectAndViewModeContainer = styled.div`
+  display: flex;
+`;
+
+const LinkContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
 `;
