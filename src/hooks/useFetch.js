@@ -2,8 +2,10 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthProvider';
 
-export const API_BASE_URL =
-  process.env.API_BASE_URL || 'https://admin.poolink.io/api';
+const IS_DEV = process.env.REACT_APP_IS_DEV || false;
+export const API_BASE_URL = IS_DEV
+  ? process.env.REACT_APP_API_BASE_URL_DEV
+  : process.env.REACT_APP_API_BASE_URL;
 
 const defaultOptions = {
   config: null,
@@ -12,6 +14,8 @@ const defaultOptions = {
   useCache: false,
   cacheRefreshInterval: 2 * 60 * 1000, // 2 mins (in ms),
   attemptTokenRefresh: true,
+  maxRetry: 3,
+  throttle: 0,
 };
 
 function getFinalUrl(url, params, query) {
@@ -99,6 +103,8 @@ export function useManualFetch(method, url, options = null) {
   //   res: {},
   //   lastUpdate: Date.getTime
   // }
+
+  const [retryCount, setRetryCount] = useState(0);
 
   const {
     poolinkAccessToken,
@@ -213,6 +219,9 @@ export function useManualFetch(method, url, options = null) {
         // update state with response
         setFetchState((prev) => ({ ...prev, loading: false, res: res }));
 
+        // reset retry count
+        setRetryCount(0);
+
         // remove stale caches and refresh cache with new information
         if (options.useCache) {
           setCache((prev) => {
@@ -237,10 +246,18 @@ export function useManualFetch(method, url, options = null) {
       console.log(e);
       let newFetchState = { loading: false, res: null, err: e };
       const errorStatusCode = e?.response?.status; // HTTP response status code
+      const errorResponse = e?.response?.data;
+      const accessTokenInvalid =
+        (errorStatusCode === 401 || errorStatusCode === 403) &&
+        errorResponse?.code === 'token_not_valid' &&
+        errorResponse?.messages?.token_class === 'AccessToken' &&
+        errorResponse?.messages?.token_type === 'access';
+
       if (
         options.useToken &&
         options.attemptTokenRefresh &&
-        (errorStatusCode === 401 || errorStatusCode === 403)
+        accessTokenInvalid &&
+        retryCount < options.maxRetry
       ) {
         // invalid access token
         const authorizationHeader =
@@ -261,6 +278,7 @@ export function useManualFetch(method, url, options = null) {
         newFetchState.loading = true;
       }
       setFetchState((prev) => ({ ...prev, ...newFetchState }));
+      setRetryCount((prev) => prev + 1);
     }
   };
 

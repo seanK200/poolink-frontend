@@ -129,22 +129,25 @@ export default function AuthProvider({ children }) {
     '/users/token/refresh',
     {
       useToken: false,
+      attemptTokenRefresh: false,
       poolinkAccessToken,
       handleTokenExpire,
       isAccessTokenValid,
       isLoggedIn,
       navigateToLogin,
-      initialTokenValidated
+      initialTokenValidated,
     }
   );
   useEffect(() => {
     if (!refreshAccessTokenState.loading) {
       if (refreshAccessTokenState.res?.data) {
+        // Access token refresh success
         console.log(`Successfully refreshed access token`);
         setPoolinkAccessToken(
           refreshAccessTokenState.res?.data?.access_token || ''
         );
       } else if (refreshAccessTokenState.err) {
+        // Failed to refresh access token. Signout.
         setIsRefreshTokenValid(false);
         poolinkSignout();
       }
@@ -241,13 +244,13 @@ export default function AuthProvider({ children }) {
 
   // Initial Token Validation
   // Check if the stored refresh token is valid
-  // initialTokenValidated will be set to true after initial check 
+  // initialTokenValidated will be set to true after initial check
   // and will remain true throughout the lifecycle of AuthProvider
   // prevent any useFetch hooks from running before token validation
-  
+
   // const [] = useManualFetch(
-  //   'POST', 
-  //   '/users/token/refresh', 
+  //   'POST',
+  //   '/users/token/refresh',
   //   {
   //     useToken: false,
   //     attemptTokenRefresh: false,
@@ -291,6 +294,7 @@ export default function AuthProvider({ children }) {
     isAccessTokenValid,
     isRefreshTokenValid,
     initialTokenValidated,
+    setInitialTokenValidated,
     isLoggedIn,
     isUserProfileValid,
     isUserProfileComplete,

@@ -7,7 +7,7 @@ export default function BoardsMyRoute() {
   const {
     boards,
     myBoardIds,
-    myBoardsCurrentPage,
+    myBoardsPaginationInfo,
     fetchMyBoardsState,
     fetchMyBoards,
   } = useData();
@@ -25,7 +25,7 @@ export default function BoardsMyRoute() {
     <Container>
       <BoardContainer>
         {myBoardIds.length > 0 &&
-          myBoardIds[myBoardsCurrentPage - 1].map((boardId, idx) => {
+          myBoardIds[myBoardsPaginationInfo.current - 1].map((boardId, idx) => {
             if (boards[boardId]) {
               return <BoardItem boardInfo={boards[boardId]} key={idx} />;
             } else {
@@ -33,7 +33,9 @@ export default function BoardsMyRoute() {
             }
           })}
       </BoardContainer>
-      <SeeMoreButton className="secondary">더 보기</SeeMoreButton>
+      {myBoardsPaginationInfo.next && (
+        <SeeMoreButton className="secondary">더 보기</SeeMoreButton>
+      )}
     </Container>
   );
 }

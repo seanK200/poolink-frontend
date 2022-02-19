@@ -5,14 +5,17 @@ import { Outlet, Route, Routes } from 'react-router-dom';
 import { useData } from '../../contexts/DataProvider';
 
 export default function BoardsLayout() {
-  const { myBoardsDataCount } = useData();
+  const { myBoardsPaginationInfo } = useData();
   return (
     <div className="view-content">
       <BlueContainer>
         <ListToolBar>
           <ListSearchResult>
             <Routes>
-              <Route path="my" element={`내 보드 ${myBoardsDataCount}개`} />
+              <Route
+                path="my"
+                element={`내 보드 ${myBoardsPaginationInfo.count}개`}
+              />
               <Route path="shared" element={`공유 보드 0개`} />
             </Routes>
           </ListSearchResult>

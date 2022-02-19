@@ -1,8 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { throttle } from 'lodash';
 import useFetch from '../hooks/useFetch';
-import { useAuth } from './AuthProvider';
-import { useMatch } from 'react-router-dom';
 
 const DataContext = React.createContext();
 
@@ -10,25 +8,47 @@ export function useData() {
   return useContext(DataContext);
 }
 
-export default function DataProvider({ children }) {
-  const { userProfile, isUserProfileValid, isRefreshTokenValid } = useAuth();
+export function parseUrlQuery(url) {
+  let queryString = url.split('?');
+  const query = {};
 
+  if (queryString.length > 1) {
+    queryString = queryString[1];
+    queryString.split('&').forEach((queryItem) => {
+      const querySplit = queryItem.split('=');
+      const key = querySplit[0];
+      const value = querySplit[1];
+
+      query[key] = value;
+    });
+  }
+
+  return query;
+}
+
+export default function DataProvider({ children }) {
   // data from servers
   const [boards, setBoards] = useState({});
   const [links, setLinks] = useState({});
-  const [categories, setCategories] = useState([]);
+  // const [categories, setCategories] = useState([]);
 
-  // GET /boards/my (my boards)
+  // GET /boards/ (my boards)
   const [myBoardIds, setMyBoardIds] = useState([]); // paginated (nested arrays)
-  const [myBoardsCurrentPage, setMyBoardsCurrentPage] = useState(1);
-  const [myBoardsTotalPageCount, setMyBoardsTotalPageCount] = useState(1);
-  const [myBoardsDataCount, setMyBoardsDataCount] = useState(0);
+  const [myBoardsPaginationInfo, setMyBoardsPaginationInfo] = useState({
+    count: 0,
+    previous: null,
+    current: null,
+    next: null,
+  });
 
   // GET /links/ (explore)
   const [exploreLinkIds, setExploreLinkIds] = useState([]); // paginated (nested arrays)
-  const [exploreCurrentPage, setExploreCurrentPage] = useState(1);
-  const [exploreTotalPageCount, setExploreTotalPageCount] = useState(1);
-  const [exploreDataCount, setExploreDataCount] = useState(0);
+  const [explorePaginationInfo, setExplorePaginationInfo] = useState({
+    count: 0,
+    previous: null,
+    current: null,
+    next: null,
+  });
 
   // Manage window resize event
   const [windowSize, setWindowSize] = useState({
@@ -121,18 +141,20 @@ export default function DataProvider({ children }) {
 
   // FETCHERS
   // FETCHER: My boards
-  const [fetchMyBoardsState, fetchMyBoards] = useFetch('GET', '/boards/my');
+  const [fetchMyBoardsState, fetchMyBoards] = useFetch('GET', '/boards/');
   useEffect(() => {
     // callback after my boards are fetched
     if (!fetchMyBoardsState.loading && fetchMyBoardsState.res?.data) {
       // store pagination info
-      const currentPage = fetchMyBoardsState.fetchArgs.query?.page;
-      setMyBoardsCurrentPage(currentPage);
-      const { dataCount, totalPageCount, results } =
-        fetchMyBoardsState.res.data;
-      setMyBoardsTotalPageCount(totalPageCount);
+      const current = fetchMyBoardsState.fetchArgs.query?.page;
+      const { count, next, previous, results } = fetchMyBoardsState.res.data;
 
-      setMyBoardsDataCount(dataCount); // update total number of my boards
+      setMyBoardsPaginationInfo({
+        count,
+        previous,
+        current,
+        next,
+      });
 
       // process boards and links
       const currentTime = new Date().getTime();
@@ -143,7 +165,7 @@ export default function DataProvider({ children }) {
         processedBoards[board.board_id] = {
           ...board,
           links: board.links.map((link) => link.link_id), // store only link IDs
-          page: currentPage, // store pagination information,
+          page: current, // store pagination information,
           lastUpdate: currentTime, // (cache) last fetched time
         };
 
@@ -162,16 +184,16 @@ export default function DataProvider({ children }) {
         // in case of out of order page fetch, check length of myBoardIds first
         const newMyBoardIds = prev.slice(
           0,
-          currentPage <= prev.length ? currentPage : prev.length
+          current <= prev.length ? current : prev.length
         );
 
-        // make sure that newMyBoardIds[currentPage - 1] exists
-        while (newMyBoardIds.length < currentPage) {
+        // make sure that newMyBoardIds[current - 1] exists
+        while (newMyBoardIds.length < current) {
           newMyBoardIds.push([]);
         }
 
         // append the board IDs
-        newMyBoardIds[currentPage - 1] = boardIds;
+        newMyBoardIds[current - 1] = boardIds;
         return newMyBoardIds;
       });
 
@@ -227,11 +249,14 @@ export default function DataProvider({ children }) {
     if (!loading) {
       if (res?.data) {
         // Store pagination info
-        const currentPage = fetchArgs?.query?.page || 1;
-        setExploreCurrentPage(currentPage);
-        const { dataCount, totalPageCount, results } = res.data;
-        setExploreTotalPageCount(totalPageCount);
-        setExploreDataCount(dataCount);
+        const current = fetchArgs?.query?.page || 1;
+        const { count, previous, next, results } = res.data;
+        setExplorePaginationInfo({
+          count,
+          previous,
+          next,
+          current,
+        });
 
         // Process links
         const boardIdsToFetch = [];
@@ -241,7 +266,7 @@ export default function DataProvider({ children }) {
         results.forEach((link) => {
           processedLinks[link.link_id] = {
             ...link,
-            page: currentPage,
+            page: current,
             lastUpdate: currentTime,
           };
           linkIds.push(link.link_id);
@@ -254,39 +279,27 @@ export default function DataProvider({ children }) {
           // in case of out of order page fetch, check length of exploreLinkIds first
           const newExploreLinkIds = prev.slice(
             0,
-            currentPage <= prev.length ? currentPage : prev.length
+            current <= prev.length ? current : prev.length
           );
 
-          // make sure that exploreLinkIds[currentPage - 1] exists
-          while (newExploreLinkIds.length < currentPage) {
+          // make sure that exploreLinkIds[current - 1] exists
+          while (newExploreLinkIds.length < current) {
             newExploreLinkIds.push([]);
           }
 
           // append the link IDs
-          newExploreLinkIds[currentPage - 1] = linkIds;
+          newExploreLinkIds[current - 1] = linkIds;
           return newExploreLinkIds;
         });
 
         // store processed links
-        updateLinks(processedLinks, currentPage);
+        updateLinks(processedLinks, current);
       } else if (err) {
         // TODO Error handling
         // Invalid page (404)
       }
     }
   }, [exploreFetchState]);
-
-  // Categories
-  const [fetchCategoriesState, fetchCategories] = useFetch(
-    'GET',
-    '/categories/'
-  );
-  useEffect(() => {
-    // categories callback
-    if (fetchCategoriesState?.res?.data) {
-      setCategories(fetchCategoriesState.res.data);
-    }
-  }, [fetchCategoriesState]);
 
   useEffect(() => {
     window.addEventListener('resize', handleWindowResize);
@@ -296,34 +309,29 @@ export default function DataProvider({ children }) {
     // eslint-disable-next-line
   }, []);
 
-  let isAtLandingPage = useMatch('/welcome/*');
+  // let isAtLandingPage = useMatch('/welcome/*');
 
   // things to automatically do after login
-  useEffect(() => {
-    if (
-      isUserProfileValid(userProfile) &&
-      isRefreshTokenValid &&
-      !isAtLandingPage
-    ) {
-      // fetchCategories();
-    }
-    // eslint-disable-next-line
-  }, [userProfile, isRefreshTokenValid]);
+  // useEffect(() => {
+  //   if (
+  //     isUserProfileValid(userProfile) &&
+  //     isRefreshTokenValid &&
+  //     !isAtLandingPage
+  //   ) {
+  //     // fetchCategories();
+  //   }
+  //   // eslint-disable-next-line
+  // }, [userProfile, isRefreshTokenValid]);
 
   const value = {
     boards,
     links,
     myBoardIds,
-    myBoardsCurrentPage,
-    myBoardsTotalPageCount,
-    myBoardsDataCount,
+    myBoardsPaginationInfo,
     fetchMyBoardsState,
     fetchMyBoards,
-    categories,
     exploreLinkIds,
-    exploreCurrentPage,
-    exploreTotalPageCount,
-    exploreDataCount,
+    explorePaginationInfo,
     exploreFetchState,
     fetchExploreLinks,
     fetchBoardState,
