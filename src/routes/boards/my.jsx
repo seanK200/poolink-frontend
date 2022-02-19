@@ -23,7 +23,7 @@ export default function BoardsMyRoute() {
 
   return (
     <Container>
-      <LinkContainer>
+      <BoardContainer>
         {myBoardIds.length > 0 &&
           myBoardIds[myBoardsCurrentPage - 1].map((boardId, idx) => {
             if (boards[boardId]) {
@@ -32,7 +32,7 @@ export default function BoardsMyRoute() {
               return <div key={idx}>Loading...</div>;
             }
           })}
-      </LinkContainer>
+      </BoardContainer>
       <SeeMoreButton className="secondary">더 보기</SeeMoreButton>
     </Container>
   );
@@ -44,7 +44,7 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const LinkContainer = styled.div`
+const BoardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
