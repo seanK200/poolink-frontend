@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import RouteModal from './components/modals/RouteModal';
+import { useData } from './contexts/DataProvider';
 import DefaultLayout from './routes';
 import BoardRoute from './routes/board/$boardId';
 import BoardsLayout from './routes/boards/index';
@@ -22,9 +23,10 @@ import SignupInfoRoute from './routes/signup/info';
 import LandingPage from './routes/welcome';
 
 function App() {
+  const { routeModalSize } = useData();
+  const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
   let location = useLocation();
   let state = location?.state;
-  const [isRouteModalOpen, setIsRouteModalOpen] = useState(false);
 
   useEffect(() => {
     if (state?.backgroundLocation) {
@@ -78,7 +80,12 @@ function App() {
             path="link/new"
             element={<AddLinkRoute isRouteModalOpen />}
           ></Route>
-          <Route path="*" element={<React.Fragment />} />
+          <Route
+            path="*"
+            element={
+              <div className={`RouteModal__Content ${routeModalSize}`} />
+            }
+          />
         </Routes>
       </RouteModal>
     </Wrapper>

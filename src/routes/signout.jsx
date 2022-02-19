@@ -6,6 +6,7 @@ import useFetch from '../hooks/useFetch';
 import { SIGNOUT_MESSAGE } from '../consts/strings';
 import Loader from '../components/assets/Loader';
 import ModalHeader from '../components/modals/ModalHeader';
+import { useData } from '../contexts/DataProvider';
 
 export default function SignoutRoute({ isRouteModalOpen }) {
   const {
@@ -13,6 +14,7 @@ export default function SignoutRoute({ isRouteModalOpen }) {
     handlePoolinkSignoutSuccess,
     handlePoolinkSignoutError,
   } = useAuth();
+  const { setRouteModalSize } = useData();
   const [signoutState, signoutFetch] = useFetch('POST', '/users/logout', {
     attemptTokenRefresh: false,
   });
@@ -20,6 +22,7 @@ export default function SignoutRoute({ isRouteModalOpen }) {
 
   // request signout on component mount
   useEffect(() => {
+    setRouteModalSize('small');
     signoutFetch({ data: { refresh_token: poolinkRefreshToken } });
     // eslint-disable-next-line
   }, []);
@@ -45,7 +48,13 @@ export default function SignoutRoute({ isRouteModalOpen }) {
   return (
     <React.Fragment>
       {isRouteModalOpen && <ModalHeader headerType="floating" />}
-      <Container>
+      <Container
+        className={
+          isRouteModalOpen
+            ? 'RouteModal__Content-container small'
+            : 'container-no-modal'
+        }
+      >
         <Logo style={{ width: '240px', marginBottom: '16px' }} />
         <div>
           <p>{signoutMessage}</p>

@@ -7,9 +7,11 @@ import { breakpoints } from '../consts/responsive';
 import { LOGIN_MESSAGE } from '../consts/strings';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ModalHeader from '../components/modals/ModalHeader';
+import { useData } from '../contexts/DataProvider';
 
 export default function LoginRoute({ isRouteModalOpen }) {
   const { poolinkLogin, isLoggedIn } = useAuth();
+  const { setRouteModalSize } = useData();
   const [loginMessage, setLoginMessage] = useState('');
   const loginMessageRef = useRef(null);
 
@@ -66,6 +68,7 @@ export default function LoginRoute({ isRouteModalOpen }) {
   };
 
   useEffect(() => {
+    setRouteModalSize('fullscreen');
     if (isLoggedIn()) {
       // Navigate back to wherever the user came from (or home)
       let from = state?.from || '/';
@@ -84,7 +87,7 @@ export default function LoginRoute({ isRouteModalOpen }) {
       <LoginContainer
         className={
           isRouteModalOpen
-            ? 'RouteModal__Content-container'
+            ? 'RouteModal__Content-container fullscreen'
             : 'container-no-modal'
         }
       >

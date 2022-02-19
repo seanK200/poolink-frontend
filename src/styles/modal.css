@@ -1,6 +1,6 @@
 .ReactModal__Overlay {
   opacity: 0;
-  transition: opacity 100ms ease-in-out;
+  transition: opacity 500ms ease-in-out;
 }
 
 .ReactModal__Overlay--after-open {
@@ -12,8 +12,8 @@
 }
 
 .ReactModal__Content {
-  transform: scale(0.95, 0.95);
-  transition: transform 100ms ease-in-out;
+  transform: scale(0.5, 0.5);
+  transition: transform 500ms ease-in-out;
 }
 
 .ReactModal__Content--after-open {
@@ -21,7 +21,7 @@
 }
 
 .ReactModal__Content--before-close {
-  transform: scale(0.95, 0.95);
+  transform: translate(-50%, -50%) scale(0.5, 0.5);
 }
 
 .RouteModal__Overlay {
@@ -35,9 +35,6 @@
 }
 
 .RouteModal__Content {
-  width: 100%;
-  max-width: calc(100vw - 160px);
-  min-height: calc(100vh - 160px);
   position: absolute;
   top: 50%;
   left: 50%;
@@ -62,8 +59,15 @@
   overflow: auto;
 }
 
-.RouteModal__Content-small > .RouteModal__Content-container {
+.RouteModal__Content-container.small {
+  width: min(100vw, 552px);
+  max-height: calc(100vh - 16px);
   padding: 16px 24px;
+}
+
+.RouteModal__Content-container.fullscreen {
+  width: calc(100vw - 160px);
+  height: calc(100vh - 160px);
 }
 
 @media only screen and (max-width: 768px) {

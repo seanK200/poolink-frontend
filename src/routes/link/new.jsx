@@ -1,24 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import ModalHeader from '../../components/modals/ModalHeader';
 import Form from '../../components/utilites/Form';
 import FormField from '../../components/utilites/FormField';
+import { useData } from '../../contexts/DataProvider';
 import useFieldControl from '../../hooks/useFieldControl';
 
 export default function AddLinkRoute({ isRouteModalOpen }) {
+  const { setRouteModalSize } = useData();
   const [linkUrl, linkUrlIsValid, linkUrlField] = useFieldControl();
   const [linkLabel, linkLabelIsValid, linkLabelField] = useFieldControl();
   const [linkMemo, linkMemoIsValid, linkMemoField] = useFieldControl();
   const [linkBoardId, linkBoardIdIsValid, linkBoardIdField] = useFieldControl();
 
+  useEffect(() => {
+    setRouteModalSize('small');
+    // eslint-disable-next-line
+  }, []);
+
   return (
     <React.Fragment>
       <ModalHeader heading="링크 추가하기" />
-      <Container
-        className={
-          isRouteModalOpen ? 'RouteModal__Content-container' : undefined
-        }
-      >
+      <Container className="RouteModal__Content-container small">
         <Form id="form-add-link">
           <FormField
             label="URL"

@@ -67,7 +67,10 @@ export default function DataProvider({ children }) {
     });
   }, 500); // event fires only once every 500ms
 
-  const handleRouteModalClose = (confirmBeforeClose = false) => {
+  // ROUTEMODAL
+  const [routeModalSize, setRouteModalSize] = useState('fullscreen');
+  const handleRouteModalClose = (event = {}, confirmBeforeClose = false) => {
+    console.log(confirmBeforeClose);
     const confirmMsg = MODAL_CLOSE_MESSAGE + ' ' + DATA_LOSS_WARNING;
     const confirmed = confirmBeforeClose ? window.confirm(confirmMsg) : true;
     if (confirmed) navigate(-1);
@@ -348,6 +351,8 @@ export default function DataProvider({ children }) {
     fetchBoard,
     windowSize,
     handleRouteModalClose,
+    routeModalSize,
+    setRouteModalSize,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
