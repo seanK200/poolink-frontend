@@ -115,7 +115,7 @@ export default function AuthProvider({ children }) {
         (!expiredAccessToken || poolinkAccessToken === expiredAccessToken) &&
         isAccessTokenValid
       ) {
-        console.log(`handleTokenExpire`);
+        // console.log(`handleTokenExpire`);
         setIsAccessTokenValid(false);
         // make request to refresh access token
       }
@@ -142,7 +142,7 @@ export default function AuthProvider({ children }) {
     if (!refreshAccessTokenState.loading) {
       if (refreshAccessTokenState.res?.data) {
         // Access token refresh success
-        console.log(`Successfully refreshed access token`);
+        // console.log(`Successfully refreshed access token`);
         setPoolinkAccessToken(
           refreshAccessTokenState.res?.data?.access_token || ''
         );
@@ -162,7 +162,7 @@ export default function AuthProvider({ children }) {
       !isAccessTokenValid &&
       poolinkAccessToken
     ) {
-      console.log(`Requesting access token refresh`);
+      // console.log(`Requesting access token refresh`);
       requestAccessTokenRefresh({
         data: { refresh_token: poolinkRefreshToken },
       });

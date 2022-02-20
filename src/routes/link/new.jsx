@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
+import BoardAutoComplete from '../../components/autocomplete/BoardAutoComplete';
 import ModalHeader from '../../components/modals/ModalHeader';
 import Form from '../../components/utilites/Form';
 import FormField from '../../components/utilites/FormField';
@@ -8,9 +9,12 @@ import useFieldControl from '../../hooks/useFieldControl';
 
 export default function AddLinkRoute({ isRouteModalOpen }) {
   const { setRouteModalSize } = useData();
+
   const [linkUrl, linkUrlIsValid, linkUrlField] = useFieldControl();
   const [linkLabel, linkLabelIsValid, linkLabelField] = useFieldControl();
-  const [linkMemo, linkMemoIsValid, linkMemoField] = useFieldControl();
+  const [linkMemo, linkMemoIsValid, linkMemoField] = useFieldControl({
+    required: false,
+  });
   const [linkBoardId, linkBoardIdIsValid, linkBoardIdField] = useFieldControl();
 
   useEffect(() => {
@@ -18,11 +22,20 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
     // eslint-disable-next-line
   }, []);
 
+  const isFormValid = () => {
+    return (
+      linkUrlIsValid &&
+      linkLabelIsValid &&
+      linkMemoIsValid &&
+      linkBoardIdIsValid
+    );
+  };
+
   return (
     <React.Fragment>
       <ModalHeader heading="링크 추가하기" />
-      <Container className="RouteModal__Content-container small">
-        <Form id="form-add-link">
+      <Container className="RouteModal__Content-container small autocomplete-container">
+        <Form id="form-add-link" isValid={isFormValid()}>
           <FormField
             label="URL"
             control={linkUrlField}
@@ -45,6 +58,9 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
             type="select"
             placeholder="내 보드"
             control={linkBoardIdField}
+            autoComplete={
+              <BoardAutoComplete control={linkBoardIdField} isInModal={true} />
+            }
           />
         </Form>
       </Container>

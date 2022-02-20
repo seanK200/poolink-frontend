@@ -65,15 +65,11 @@ export default function SearchBar({
       <input
         type="text"
         value={searchQuery}
-        style={{
-          margin: '0 8px',
-          width: '100%',
-          display: isCollapsed ? 'none' : undefined,
-        }}
         placeholder={placeholder ? placeholder : '검색...'}
         onChange={handleInputChange}
         onBlur={handleInputBlur}
         ref={inputRef}
+        className="searchbar"
       />
       <XLg
         style={{

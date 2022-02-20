@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ChevronDown } from 'react-bootstrap-icons';
 import styled from 'styled-components';
 
@@ -10,7 +10,11 @@ export default function FormField({
   control,
   textarea,
   onChange: handleChangeProp,
+  onFocus: handleFocusProp,
   onBlur: handleBlurProp,
+  autoComplete,
+  className,
+  hideMessage,
   ...props
 }) {
   const {
@@ -19,7 +23,9 @@ export default function FormField({
     doValidate,
     message,
     handleChangeControl,
+    handleFocusControl,
     handleBlurControl,
+    inputRef,
   } = control;
 
   const handleChange = (e) => {
@@ -27,9 +33,19 @@ export default function FormField({
     if (typeof handleChangeProp === 'function') handleChangeProp(e);
   };
 
+  const handleFocus = (e) => {
+    handleFocusControl(e);
+    if (typeof handleFocusProp === 'function') handleFocusProp(e);
+  };
+
   const handleBlur = (e) => {
     handleBlurControl(e);
     if (typeof handleBlurProp === 'function') handleBlurProp(e);
+  };
+
+  const handleSelectArrowClick = (e) => {
+    e.stopPropagation();
+    inputRef?.current?.focus && inputRef.current.focus();
   };
 
   const inputElement = () => {
@@ -39,74 +55,60 @@ export default function FormField({
           className={!doValidate || isValid ? '' : 'invalid'}
           value={value}
           onChange={handleChange}
+          onFocus={handleFocus}
           onBlur={handleBlur}
           disabled={disabled}
+          ref={inputRef}
           {...props}
         ></textarea>
       );
-    if (type === 'select')
-      return (
-        <FakeInput
+
+    return (
+      <React.Fragment>
+        <input
           type={type}
           className={!doValidate || isValid ? '' : 'invalid'}
           value={value}
           onChange={handleChange}
+          onFocus={handleFocus}
           onBlur={handleBlur}
           disabled={disabled}
+          ref={inputRef}
           {...props}
         />
-      );
-
-    return (
-      <input
-        type={type}
-        className={!doValidate || isValid ? '' : 'invalid'}
-        value={value}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        disabled={disabled}
-        {...props}
-      />
+        {type === 'select' && (
+          <SelectArrowContainer onClick={handleSelectArrowClick}>
+            <ChevronDown />
+          </SelectArrowContainer>
+        )}
+      </React.Fragment>
     );
   };
 
   return (
-    <div className="input-group">
-      <label htmlFor={id}>
-        {labelText}
-        <span className="required">{control.required && '*'}</span>
-      </label>
-      {inputElement()}
-      <div className="input-message">{message}</div>
-    </div>
-  );
-}
-
-function FakeInput({
-  className: classNameProp,
-  type,
-  value,
-  disabled,
-  placeholder,
-  ...props
-}) {
-  return (
-    <React.Fragment>
-      <div className={`fake-input ${classNameProp}${value ? '' : ' empty'}`}>
-        {value || placeholder || ''}
-      </div>
-      {type === 'select' && (
-        <SelectArrowContainer>
-          <ChevronDown />
-        </SelectArrowContainer>
+    <div className={`input-group${className ? ' ' + className : ''}`}>
+      {labelText && (
+        <label htmlFor={id}>
+          {labelText}
+          <span className="required">{control.required && '*'}</span>
+        </label>
       )}
-    </React.Fragment>
+      <div
+        style={{ width: '100%', position: 'relative' }}
+        className="input-container"
+      >
+        {inputElement()}
+        {autoComplete}
+      </div>
+      {hideMessage || <div className="input-message">{message}</div>}
+    </div>
   );
 }
 
 const SelectArrowContainer = styled.div`
   position: absolute;
   top: 50%;
+  transform: translateY(-50%);
   right: 16px;
   color: var(--color-g3);
   padding: 0;

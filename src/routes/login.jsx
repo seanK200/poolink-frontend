@@ -73,7 +73,7 @@ export default function LoginRoute({ isRouteModalOpen }) {
       // Navigate back to wherever the user came from (or home)
       let from = state?.from || '/';
       navigate(from, { replace: true });
-      console.log(`Already logged in. Returning to ${state.from?.pathname}`);
+      // console.log(`Already logged in. Returning to ${state.from?.pathname}`);
     }
     return () => {
       setLoginMessage('');

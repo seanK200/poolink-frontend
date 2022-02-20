@@ -40,19 +40,6 @@ div.overflow-padding-top {
   z-index: 3;
 }
 
-/* topbar */
-input:not([type='radio']):not([type='checkbox']).search {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background: none;
-  color: #6a6a6a;
-  font-size: 1rem;
-  font-weight: 600;
-  width: 100%;
-  padding: 0 8px;
-}
-
 /* loading animation */
 .loading::before {
   content: '';

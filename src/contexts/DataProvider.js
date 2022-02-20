@@ -70,7 +70,7 @@ export default function DataProvider({ children }) {
   // ROUTEMODAL
   const [routeModalSize, setRouteModalSize] = useState('fullscreen');
   const handleRouteModalClose = (event = {}, confirmBeforeClose = false) => {
-    console.log(confirmBeforeClose);
+    // console.log(confirmBeforeClose);
     const confirmMsg = MODAL_CLOSE_MESSAGE + ' ' + DATA_LOSS_WARNING;
     const confirmed = confirmBeforeClose ? window.confirm(confirmMsg) : true;
     if (confirmed) navigate(-1);

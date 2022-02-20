@@ -40,9 +40,9 @@ function App() {
     <Wrapper>
       <Routes location={state?.backgroundLocation || location}>
         <Route path="/" element={<DefaultLayout />}>
-          <Route index element={<Navigate to="boards/my" />} />
+          <Route index element={<Navigate to="boards/my" replace={true} />} />
           <Route path="boards/*" element={<BoardsLayout />}>
-            <Route index element={<Navigate to="my" />} />
+            <Route index element={<Navigate to="my" replace={true} />} />
             <Route path="my" element={<BoardsMyRoute />} />
             <Route path="shared" element={<BoardsSharedRoute />} />
           </Route>
@@ -53,6 +53,7 @@ function App() {
           </Route>
           <Route path="board/:boardId" element={<BoardRoute />} />
           <Route path="link/:linkId" element={<LinkRoute />} />
+          <Route path="link/new" element={<Navigate to="/" replace={true} />} />
         </Route>
         <Route path="login" element={<LoginRoute />} />
         <Route path="signup" element={<SignupLayout />}>

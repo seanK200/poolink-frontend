@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 const defaultMessages = {
   valid: '',
@@ -37,6 +37,8 @@ export default function useFieldControl({
   const [message, setMessage] = useState(
     initValues?.message || defaultInitValues.message
   );
+  const [focused, setFocus] = useState(false);
+  const inputRef = useRef(null);
 
   const initializeField = useCallback(() => {
     setValue(initValues?.value || defaultInitValues.value);
@@ -73,7 +75,7 @@ export default function useFieldControl({
       if (typeof errMsg === 'string') {
         setMessage(errMsg);
       } else {
-        console.log(errMsg);
+        // console.log(errMsg);
         setMessage(messages?.invalid || defaultMessages.invalid);
       }
       setIsValid(false);
@@ -81,20 +83,19 @@ export default function useFieldControl({
     }
   }, [required, minLen, maxLen, messages, validator, value, doValidate]);
 
-  const handleChangeControl = useCallback(
-    (e) => {
-      if (!doValidate) setDoValidate(true);
-      setValue(e.target.value);
-    },
-    [doValidate]
-  );
+  const handleChangeControl = (e) => {
+    if (!doValidate) setDoValidate(true);
+    setValue(e.target.value);
+  };
 
-  const handleBlurControl = useCallback(
-    (e) => {
-      if (!doValidate) setDoValidate(true);
-    },
-    [doValidate]
-  );
+  const handleFocusControl = (e) => {
+    setFocus(true);
+  };
+
+  const handleBlurControl = (e) => {
+    setFocus(false);
+    if (!doValidate) setDoValidate(true);
+  };
 
   useEffect(() => {
     validateField();
@@ -113,8 +114,11 @@ export default function useFieldControl({
     initializeField,
     validateField,
     handleChangeControl,
+    handleFocusControl,
     handleBlurControl,
     required,
+    focused,
+    inputRef,
   };
 
   return [value, isValid, control];

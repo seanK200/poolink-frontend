@@ -135,9 +135,9 @@ export function useManualFetch(method, url, options = null) {
       // Stop here if initial token validation hasn't taken place yet
       // useEffect will retry once it has been validated
       if (!initialTokenValidated) {
-        console.log(
-          `useFetch(${method}, ${url}): Waiting for initial token validation.`
-        );
+        // console.log(
+        //   `useFetch(${method}, ${url}): Waiting for initial token validation.`
+        // );
         return;
       }
 
@@ -145,9 +145,9 @@ export function useManualFetch(method, url, options = null) {
       // useEffect will retry once access token is renewed
       if (options.useToken && !isAccessTokenValid) {
         if (!isLoggedIn()) {
-          console.log(
-            `useFetch(${method}, ${url}): Not logged in. Navigate to login.`
-          );
+          // console.log(
+          //   `useFetch(${method}, ${url}): Not logged in. Navigate to login.`
+          // );
           navigateToLogin();
         }
         return;
@@ -243,7 +243,7 @@ export function useManualFetch(method, url, options = null) {
         }
       }
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       let newFetchState = { loading: false, res: null, err: e };
       const errorStatusCode = e?.response?.status; // HTTP response status code
       const errorResponse = e?.response?.data;
@@ -270,7 +270,7 @@ export function useManualFetch(method, url, options = null) {
         // tell AuthProvider that access token is no longer valid
         if (typeof handleTokenExpire === 'function') {
           handleTokenExpire(expiredToken);
-          console.log(`useFetch(${method}, ${url}): Access token expired.`);
+          // console.log(`useFetch(${method}, ${url}): Access token expired.`);
         }
 
         // Leave request in loading state

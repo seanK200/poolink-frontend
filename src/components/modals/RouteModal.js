@@ -10,6 +10,7 @@ export default function RouteModal({ headerType, children, ...rest }) {
       onRequestClose={handleRouteModalClose}
       className="RouteModal__Content"
       overlayClassName="RouteModal__Overlay"
+      portalClassName="RouteModal__Portal"
       shouldCloseOnEsc={true}
       shouldCloseOnOverlayClick={true}
       closeTimeoutMS={500}
