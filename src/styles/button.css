@@ -27,6 +27,13 @@ button.small {
   border-radius: 18px;
 }
 
+button.large {
+  padding: 14px 28px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
 button.primary {
   color: white;
   background-color: var(--color-primary);
@@ -35,6 +42,11 @@ button.primary {
 button.secondary {
   color: var(--color-primary);
   background-color: var(--color-secondary);
+}
+
+button.gray {
+  color: var(--color-g2);
+  background-color: var(--color-g9);
 }
 
 button.minimal {

@@ -3,12 +3,11 @@ import styled from 'styled-components';
 import { throttle } from 'lodash';
 import { useData } from '../../contexts/DataProvider';
 
-export default function AutoComplete({ control, isInModal, children }) {
-  const { inputRef, focused } = control;
+export default function CustomSelect({ control, isInModal, children }) {
+  const { inputRef, focused, handleBlurControl } = control;
   const { windowSize } = useData();
   const containerRef = useRef(null);
   const [position, setPosition] = useState(0);
-  // const [isVisible, setVisible] = useState(false);
 
   // decide the y-position relative to the
   const resolvePosition = useCallback(() => {
@@ -42,12 +41,11 @@ export default function AutoComplete({ control, isInModal, children }) {
         newPosition = 0 - containerHeight - margin;
       }
     }
-
     setPosition(newPosition);
   }, [inputRef, isInModal, containerRef]);
 
   const handleScroll = throttle(() => {
-    if (inputRef?.current) inputRef.current.blur();
+    handleBlurControl();
   }, 500);
 
   const handleContainerClick = (e) => {

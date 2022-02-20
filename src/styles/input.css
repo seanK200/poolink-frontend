@@ -1,4 +1,5 @@
-input {
+input,
+div.fake-input {
   border-width: 1px;
   border-style: solid;
   border-color: var(--color-g8);
@@ -40,25 +41,24 @@ input.minimal {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+div.fake-input.focus {
   border-color: var(--color-primary);
 }
 
-input::placeholder {
+input::placeholder,
+div.fake-input.empty {
   color: var(--color-g6);
 }
 
 input.invalid,
-textarea.invalid {
+textarea.invalid,
+div.fake-input.invalid {
   border-color: var(--color-red);
 }
 
 div.input-message {
   padding: 0px;
-}
-
-input.invalid ~ div.input-message {
-  color: var(--color-red);
 }
 
 label {
@@ -88,9 +88,5 @@ div.input-group.minimal {
 div.input-group.minimal input {
   border: none;
   border-radius: 0;
-  margin: 0;
-}
-
-div.input-group.minimal .input-container {
   margin: 0;
 }

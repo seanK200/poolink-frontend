@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export default function SmallBoardItem({ boardInfo }) {
+export default function SmallBoardItem({ boardInfo, ...props }) {
   if (!boardInfo) return null;
   return (
-    <Container>
+    <Container {...props}>
       <Emoji emoji={boardInfo.emoji}>{boardInfo.emoji || ''}</Emoji>
       {boardInfo.name}
     </Container>

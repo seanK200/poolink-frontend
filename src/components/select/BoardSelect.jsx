@@ -3,25 +3,29 @@ import styled from 'styled-components';
 import { useData } from '../../contexts/DataProvider';
 import SearchIcon from '../assets/SearchIcon';
 import SmallBoardItem from '../SmallBoardItem';
-import AutoComplete from './AutoComplete';
 import { flatten } from 'lodash';
 import useFieldControl from '../../hooks/useFieldControl';
-import Form from '../../components/utilites/Form';
 import FormField from '../../components/utilites/FormField';
 import { Plus } from 'react-bootstrap-icons';
+import CustomSelect from './CustomSelect';
+import Button from '../buttons/Button';
 
-export default function BoardAutoComplete({ control, isInModal }) {
+export default function BoardSelect({ control, ...props }) {
   const { boards, myBoardIds } = useData();
+  const { setValue, handleBlurControl } = control;
 
   const [newBoardName, newBoardNameIsValid, newBoardNameField] =
     useFieldControl();
 
-  const BoardItems = flatten(myBoardIds).map((boardId) => {
-    return <SmallBoardItem key={boardId} boardInfo={boards[boardId]} />;
-  });
+  const handleSelect = (boardId) => {
+    const boardInfo = boards[boardId];
+    setValue(boardInfo);
+    newBoardNameField.initializeField();
+    handleBlurControl();
+  };
 
   return (
-    <AutoComplete control={control} isInModal={isInModal}>
+    <CustomSelect control={control} {...props}>
       <Container>
         <div
           style={{
@@ -54,34 +58,45 @@ export default function BoardAutoComplete({ control, isInModal }) {
             />
           </div>
           <BoardList className="no-scrollbar">
-            {BoardItems}
-            {BoardItems}
-            {BoardItems}
+            {flatten(myBoardIds).map((boardId) => (
+              <SmallBoardItem
+                key={boardId}
+                boardInfo={boards[boardId]}
+                onClick={() => handleSelect(boardId)}
+              />
+            ))}
           </BoardList>
           <CreateBoard>
-            <Form>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Plus
-                  style={{
-                    color: 'var(--color-g6)',
-                    fontSize: '1.5rem',
-                    position: 'relative',
-                    bottom: '1px',
-                  }}
-                />
-                <FormField
-                  type="text"
-                  className="minimal"
-                  control={newBoardNameField}
-                  placeholder="새 보드 이름"
-                  hideMessage
-                />
-              </div>
-            </Form>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '4px 0',
+              }}
+            >
+              <Plus
+                style={{
+                  color: 'var(--color-g6)',
+                  fontSize: '1.5rem',
+                  position: 'relative',
+                  bottom: '1px',
+                }}
+              />
+              <FormField
+                type="text"
+                className="minimal"
+                control={newBoardNameField}
+                placeholder="새 보드 이름"
+                hideMessage
+              />
+              <Button className="primary small" style={{ flexShrink: '0' }}>
+                만들기
+              </Button>
+            </div>
           </CreateBoard>
         </div>
       </Container>
-    </AutoComplete>
+    </CustomSelect>
   );
 }
 

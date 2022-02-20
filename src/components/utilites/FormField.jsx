@@ -6,6 +6,7 @@ export default function FormField({
   label: labelText,
   type = 'text',
   id,
+  placeholder,
   disabled = false,
   control,
   textarea,
@@ -15,6 +16,8 @@ export default function FormField({
   autoComplete,
   className,
   hideMessage,
+  customSelect,
+  displayValue: displayValueProp,
   ...props
 }) {
   const {
@@ -26,6 +29,7 @@ export default function FormField({
     handleFocusControl,
     handleBlurControl,
     inputRef,
+    focused,
   } = control;
 
   const handleChange = (e) => {
@@ -43,17 +47,32 @@ export default function FormField({
     if (typeof handleBlurProp === 'function') handleBlurProp(e);
   };
 
-  const handleSelectArrowClick = (e) => {
-    e.stopPropagation();
+  const handleInputClick = (e) => {
     inputRef?.current?.focus && inputRef.current.focus();
   };
 
+  const handleFakeInputClick = (e) => {
+    if (!focused && !disabled) handleFocus();
+  };
+
+  const handleSelectArrowClick = (e) => {
+    focused ? handleBlur() : handleFocus();
+  };
+
+  const handleSelectOverlayClick = (e) => {
+    handleBlur();
+  };
+
+  const displayValue =
+    typeof displayValueProp === 'function' ? displayValueProp(value) : value;
+
   const inputElement = () => {
-    if (type === 'textarea')
+    if (type === 'textarea') {
       return (
         <textarea
           className={!doValidate || isValid ? '' : 'invalid'}
-          value={value}
+          placeholder={placeholder}
+          value={displayValue}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
@@ -62,26 +81,43 @@ export default function FormField({
           {...props}
         ></textarea>
       );
+    }
 
-    return (
-      <React.Fragment>
-        <input
-          type={type}
-          className={!doValidate || isValid ? '' : 'invalid'}
-          value={value}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          disabled={disabled}
-          ref={inputRef}
-          {...props}
-        />
-        {type === 'select' && (
+    if (type === 'select') {
+      let inputClassName = 'fake-input';
+      if (!displayValue) inputClassName += ' empty';
+      if (doValidate && !isValid) inputClassName += ' invalid';
+      if (focused) inputClassName += ' focus';
+      return (
+        <React.Fragment>
+          <div
+            className={inputClassName}
+            onClick={handleFakeInputClick}
+            ref={inputRef}
+          >
+            {displayValue ? displayValue : placeholder}
+          </div>
           <SelectArrowContainer onClick={handleSelectArrowClick}>
             <ChevronDown />
           </SelectArrowContainer>
-        )}
-      </React.Fragment>
+          <SelectOverlay onClick={handleSelectOverlayClick} focused={focused} />
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <input
+        type={type}
+        className={!doValidate || isValid ? '' : 'invalid'}
+        placeholder={placeholder}
+        value={displayValue}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        disabled={disabled}
+        ref={inputRef}
+        {...props}
+      />
     );
   };
 
@@ -96,9 +132,10 @@ export default function FormField({
       <div
         style={{ width: '100%', position: 'relative' }}
         className="input-container"
+        onClick={handleInputClick}
       >
         {inputElement()}
-        {autoComplete}
+        {type === 'select' ? customSelect : autoComplete}
       </div>
       {hideMessage || <div className="input-message">{message}</div>}
     </div>
@@ -119,4 +156,13 @@ const SelectArrowContainer = styled.div`
     padding: 0;
     margin: 0;
   }
+`;
+
+const SelectOverlay = styled.div`
+  display: ${({ focused }) => (focused ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
 `;

@@ -162,6 +162,8 @@ export default function DataProvider({ children }) {
       const current = fetchMyBoardsState.fetchArgs.query?.page;
       const { count, next, previous, results } = fetchMyBoardsState.res.data;
 
+      if (!count || !next || !previous || !results) return;
+
       setMyBoardsPaginationInfo({
         count,
         previous,

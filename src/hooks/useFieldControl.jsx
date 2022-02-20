@@ -38,6 +38,7 @@ export default function useFieldControl({
     initValues?.message || defaultInitValues.message
   );
   const [focused, setFocus] = useState(false);
+
   const inputRef = useRef(null);
 
   const initializeField = useCallback(() => {
