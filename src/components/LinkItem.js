@@ -3,6 +3,17 @@ import styled from 'styled-components';
 import CopyButton from './buttons/CopyButton';
 import MenuButton from './buttons/MenuButton';
 
+export function getDomainName(url, truncateLength = 50) {
+  let domainName = url;
+  const protocolSplit = domainName.split('//');
+  domainName = protocolSplit.length > 1 ? protocolSplit[1] : protocolSplit[0];
+  domainName = domainName.split('/')[0];
+  if (domainName.length > truncateLength) {
+    domainName = domainName.substr(0, truncateLength - 3) + '...';
+  }
+  return domainName;
+}
+
 export default function LinkItem({ linkInfo }) {
   return (
     <Container>
@@ -18,7 +29,7 @@ export default function LinkItem({ linkInfo }) {
         <LinkMemo memo={linkInfo.memo}>{linkInfo.memo}</LinkMemo>
         <LinkUrlContainer>
           <Favicon faviconSrc={linkInfo.favicon} />
-          <LinkUrl>{linkInfo.url}</LinkUrl>
+          <LinkUrl>{getDomainName(linkInfo.url)}</LinkUrl>
         </LinkUrlContainer>
       </LinkInfoContainer>
     </Container>
