@@ -23,7 +23,7 @@ export default function BoardsSharedRoute() {
 
   return (
     <Container>
-      {sharedBoardIds?.length &&
+      {sharedBoardIds.length &&
         sharedBoardIds[sharedBoardsPaginationInfo.current - 1].map(
           (boardId, idx) => {
             if (boards[boardId]) {

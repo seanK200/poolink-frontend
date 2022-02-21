@@ -5,14 +5,17 @@ import Button from './buttons/Button';
 import styled from 'styled-components';
 import ScrapButton from './buttons/ScrapButton';
 import MenuButton from './buttons/MenuButton';
+import { useNavigate } from 'react-router-dom';
 
 export default function BoardItem({ boardInfo }) {
-  const { links } = useData();
-
   const { userProfile } = useAuth();
+  const { links } = useData();
+  const navigate = useNavigate();
 
   return (
-    <BoardItemContainer>
+    <BoardItemContainer
+      onClick={() => navigate(`/board/${boardInfo.board_id}`)}
+    >
       <div
         style={{
           display: 'flex',
@@ -90,6 +93,7 @@ const BoardItemContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  cursor: pointer;
 `;
 
 const BoardName = styled.div`

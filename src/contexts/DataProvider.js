@@ -265,7 +265,9 @@ export default function DataProvider({ children }) {
   }, [fetchSharedBoardsState, handleBoardsFetch]);
 
   // fetch individual board
-  const [fetchBoardState, fetchBoard] = useFetch('GET', '/boards/:id/');
+  const [fetchBoardState, fetchBoard] = useFetch('GET', '/boards/:id/', {
+    useCache: true,
+  });
   useEffect(() => {
     const { loading, res, err } = fetchBoardState;
     if (!loading) {
@@ -384,6 +386,7 @@ export default function DataProvider({ children }) {
     boards,
     links,
     myBoardIds,
+    sharedBoardIds,
     myBoardsPaginationInfo,
     fetchMyBoardsState,
     fetchMyBoards,

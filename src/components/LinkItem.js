@@ -17,10 +17,10 @@ export function getDomainName(url, truncateLength = 50) {
 export default function LinkItem({ linkInfo }) {
   return (
     <Container>
-      <LinkMetaImage metaImageSrc={linkInfo.metaImageSrc} />
+      <LinkMetaImage metaImageSrc={linkInfo.meta_image} />
       <LinkInfoContainer>
         <LinkNameAndButtonContainer>
-          <LinkName>{linkInfo.name}</LinkName>
+          <LinkName>{linkInfo.label}</LinkName>
           <ButtonContainer>
             <CopyButton />
             <MenuButton />
@@ -46,16 +46,18 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const LinkMetaImage = styled.img`
+const LinkMetaImage = styled.div`
   width: 100%;
   height: 140px;
   background-position: center center;
   background-repeat: no-repeat;
+  background-size: cover;
   ${(props) =>
     props.metaImageSrc
-      ? `background-image: url(${props.metaImageSrc})`
+      ? `background-image: url(${props.metaImageSrc});`
       : `background-color: #C4C4C4;`}
   border-radius: 10px 10px 0 0;
+  border-bottom: 1px solid var(--color-g8);
 `;
 
 const LinkInfoContainer = styled.div`
@@ -122,7 +124,7 @@ const Favicon = styled.div`
   background-size: cover;
   ${(props) =>
     props.faviconSrc
-      ? `backgounrd-image: url(${props.faviconSrc});`
+      ? `background-image: url(${props.faviconSrc});`
       : `background-color: #C4C4C4;`}
   margin-right: 8px;
 `;

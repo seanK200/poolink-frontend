@@ -127,7 +127,7 @@ export function useManualFetch(method, url, options = null) {
       const currentArgs = { data, params, query, useCache };
       const fetchStateArgs = fetchState.fetchArgs;
       if (deepEquals(currentArgs, fetchStateArgs)) {
-        console.log(`useFetch(${method}, ${url}): Prevent excessive retry.`);
+        // console.log(`useFetch(${method}, ${url}): Prevent excessive retry.`);
         return;
       } else {
         console.log({ currentArgs, fetchStateArgs });
@@ -174,9 +174,9 @@ export function useManualFetch(method, url, options = null) {
       if (options.useCache && useCache) {
         let idx = 0;
         const currentTime = new Date().getTime();
-        console.log(
-          `useFetch(${method}, ${url}): Current cache length: ${cache.length}`
-        );
+        // console.log(
+        //   `useFetch(${method}, ${url}): Current cache length: ${cache.length}`
+        // );
         for (const cacheData of cache) {
           // check if cached data is available
           const { fetchArgs: cachedFetchArgs, res, lastUpdate } = cacheData;
