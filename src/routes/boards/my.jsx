@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useData } from '../../contexts/DataProvider';
 import BoardItem from '../../components/BoardItem';
 import styled from 'styled-components';
+import { breakpoints } from '../../consts/responsive';
 
 export default function BoardsMyRoute() {
   const {
@@ -49,6 +50,10 @@ const Container = styled.div`
 const BoardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
+  @media only screen and (max-width: ${breakpoints.sm}px) {
+    justify-content: center;
+    transition: 0.5s ease;
+  }
 `;
 
 const SeeMoreButton = styled.button`

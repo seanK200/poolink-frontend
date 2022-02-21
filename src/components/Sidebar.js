@@ -16,6 +16,7 @@ import ShowMobile from './utilites/ShowMobile';
 import AccountProfile from './AccountProfile';
 import NotificationsButton from './buttons/NotificationsButton';
 import SmallBoardList from './sidebar/SmallBoardList';
+import { breakpoints } from '../consts/responsive';
 
 export default function Sidebar({ isVisible, hideSidebar }) {
   return (
@@ -86,7 +87,7 @@ const StyledSidebar = styled.div`
   & > * {
     flex-shrink: 0;
   }
-  @media only screen and (max-width: 768px) {
+  @media only screen and (max-width: ${breakpoints.sm}px) {
     position: absolute;
     z-index: 4;
     transform: translateX(-100%);

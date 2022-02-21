@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
+import { breakpoints } from '../consts/responsive';
 
 export default function DefaultLayout() {
   const [isVisible, setIsVisible] = useState(false); // mobile
@@ -37,7 +38,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   overflow: auto;
-  @media only screen and (max-width: 768px) {
+  @media only screen and (max-width: ${breakpoints.sm}px) {
     padding-left: 0;
   }
 `;

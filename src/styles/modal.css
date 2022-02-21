@@ -69,7 +69,7 @@
   height: calc(100vh - 160px);
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 680px) {
   .RouteModal__Content {
     width: auto;
     max-width: none;

@@ -67,7 +67,7 @@ const ToolBar = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 4px 16px 16px 16px;
+  padding: 0 16px;
 `;
 
 const NumberOfBoards = styled.div`

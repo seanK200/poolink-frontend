@@ -13,7 +13,7 @@ div.view-content {
   max-width: 100%;
   flex-grow: 1;
   border-radius: 16px 0 0 0;
-  padding: 24px;
+  padding: 28px 24px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -57,9 +57,10 @@ div.overflow-padding-top {
   animation: spin 1.5s linear infinite;
 }
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 680px) {
   div.view-content {
     border-radius: 0;
+    padding: 24px 12px;
   }
 }
 
