@@ -20,7 +20,10 @@ import { breakpoints } from '../consts/responsive';
 
 export default function Sidebar({ isVisible, hideSidebar }) {
   return (
-    <StyledSidebar className={isVisible ? 'visible' : ''} onClick={hideSidebar}>
+    <StyledSidebar
+      className={`no-scrollbar ${isVisible ? 'visible' : ''}`}
+      onClick={hideSidebar}
+    >
       <HideMobile>
         <Logo
           className="logo-sidebar"
