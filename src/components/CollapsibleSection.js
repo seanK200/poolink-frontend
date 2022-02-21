@@ -86,7 +86,6 @@ const Content = styled.div`
   width: 100%;
   flex-grow: 1;
   overflow: auto;
-  padding: 0 8px;
   &.collapsed {
     display: none;
   }

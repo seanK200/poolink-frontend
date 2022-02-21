@@ -12,7 +12,7 @@ const defaultOptions = {
   useToken: true,
   timeout: 5000,
   useCache: false,
-  cacheRefreshInterval: 2 * 60 * 1000, // 2 mins (in ms),
+  cacheRefreshInterval: 1 * 30 * 1000, // 30 secs (in ms),
   attemptTokenRefresh: true,
   maxRetry: 3,
   throttle: 0,
@@ -68,17 +68,14 @@ function deepEquals(obj1, obj2) {
   if (keys1.length !== keys2.length) return false;
 
   for (const key of keys1) {
-    if (obj2[key]) {
-      const val1 = obj1[key];
-      const val2 = obj2[key];
-      const areObjects = isObject(val1) && isObject(val2);
-      if (
-        (areObjects && !deepEquals(val1, val2)) ||
-        (!areObjects && val1 !== val2)
-      ) {
-        return false;
-      }
-    } else {
+    if (!obj2.hasOwnProperty(key)) return false;
+    const val1 = obj1[key];
+    const val2 = obj2[key];
+    const areObjects = isObject(val1) && isObject(val2);
+    if (
+      (areObjects && !deepEquals(val1, val2)) ||
+      (!areObjects && val1 !== val2)
+    ) {
       return false;
     }
   }
@@ -116,13 +113,26 @@ export function useManualFetch(method, url, options = null) {
   } = options;
 
   const fetchData = async (
-    { data, params, query, useCache } = {
+    { data, params, query, useCache, retry } = {
       data: null,
       params: null,
       query: null,
       useCache: true,
+      retry: false,
     }
   ) => {
+    if (fetchState.loading && !retry) {
+      // stop if already making request with the same args
+      // but, allow automatic retry after token refresh
+      const currentArgs = { data, params, query, useCache };
+      const fetchStateArgs = fetchState.fetchArgs;
+      if (deepEquals(currentArgs, fetchStateArgs)) {
+        console.log(`useFetch(${method}, ${url}): Prevent excessive retry.`);
+        return;
+      } else {
+        console.log({ currentArgs, fetchStateArgs });
+      }
+    }
     try {
       setFetchState({
         loading: true,
@@ -163,13 +173,14 @@ export function useManualFetch(method, url, options = null) {
       // if caching is enabled
       if (options.useCache && useCache) {
         let idx = 0;
-        const currentTime = new Date.getTime();
-
+        const currentTime = new Date().getTime();
+        console.log(
+          `useFetch(${method}, ${url}): Current cache length: ${cache.length}`
+        );
         for (const cacheData of cache) {
           // check if cached data is available
           const { fetchArgs: cachedFetchArgs, res, lastUpdate } = cacheData;
           const currentFetchArgs = { data, params, query };
-
           if (deepEquals(currentFetchArgs, cachedFetchArgs)) {
             isCacheAvailable = true; // cache hit!
             cacheFoundIdx = idx;
@@ -179,6 +190,7 @@ export function useManualFetch(method, url, options = null) {
               // if so, use it!
               isCacheValid = true;
               cachedRes = res;
+              console.log('Cache hit');
             } else {
               // stale cash. mark for deletion
               staleCacheIdx.push(idx);
@@ -193,7 +205,6 @@ export function useManualFetch(method, url, options = null) {
           idx++;
         }
       }
-
       if (isCacheAvailable && isCacheValid) {
         // use cached response
         setFetchState((prev) => ({ ...prev, loading: false, res: cachedRes }));
@@ -243,7 +254,7 @@ export function useManualFetch(method, url, options = null) {
         }
       }
     } catch (e) {
-      // console.log(e);
+      console.log(e);
       let newFetchState = { loading: false, res: null, err: e };
       const errorStatusCode = e?.response?.status; // HTTP response status code
       const errorResponse = e?.response?.data;
@@ -289,7 +300,7 @@ export function useManualFetch(method, url, options = null) {
 
       // if in loading state, retry
       if (loading && !err) {
-        fetchData(fetchArgs);
+        fetchData({ ...fetchArgs, retry: true });
       }
     }
     // eslint-disable-next-line
@@ -305,7 +316,7 @@ export function useManualFetch(method, url, options = null) {
 
       // retry with same arguments
       if (shouldRetry) {
-        fetchData(fetchArgs);
+        fetchData({ ...fetchArgs, retry: true });
       }
     }
     // eslint-disable-next-line

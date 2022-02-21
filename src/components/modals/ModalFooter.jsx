@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-export default function ModalFooter({ footerRef, children, ...props }) {
+export default function ModalFooter({ footerRef, children, shadow, ...props }) {
   return (
     <Container
-      className="RouteModal__Content-footer"
+      className={`RouteModal__Content-footer${shadow ? ' shadow' : ''}`}
       ref={footerRef ? footerRef : undefined}
       {...props}
     >
@@ -22,5 +22,7 @@ const Container = styled.div`
   left: 0;
   border-radius: 0 0 10px 10px;
   background-color: white;
-  box-shadow: 0px -8px 8px -8px rgba(0, 0, 0, 0.1);
+  &.shadow {
+    box-shadow: 0px -8px 8px -8px rgba(0, 0, 0, 0.25);
+  }
 `;

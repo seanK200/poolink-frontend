@@ -15,6 +15,7 @@ import HideMobile from './utilites/HideMobile';
 import ShowMobile from './utilites/ShowMobile';
 import AccountProfile from './AccountProfile';
 import NotificationsButton from './buttons/NotificationsButton';
+import SmallBoardList from './sidebar/SmallBoardList';
 
 export default function Sidebar({ isVisible, hideSidebar }) {
   return (
@@ -57,13 +58,13 @@ export default function Sidebar({ isVisible, hideSidebar }) {
       <DividerLine margin="0 0 24px 0" />
       <CollapsibleSection
         label="즐겨찾는 보드"
-        component={<div>Test2</div>}
+        component={<SmallBoardList favorites={true} />}
         className="no-scrollbar"
         iconSvg={<FavoritesIcon style={{ marginRight: '16px' }} />}
       />
       <CollapsibleSection
         label="보드 목록"
-        component={<div>Test1</div>}
+        component={<SmallBoardList />}
         className="no-scrollbar"
         iconSvg={BoardListSvg}
       />

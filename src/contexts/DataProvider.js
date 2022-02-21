@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { throttle } from 'lodash';
 import useFetch from '../hooks/useFetch';
 import { DATA_LOSS_WARNING, MODAL_CLOSE_MESSAGE } from '../consts/strings';
@@ -39,7 +39,15 @@ export default function DataProvider({ children }) {
   const [myBoardsPaginationInfo, setMyBoardsPaginationInfo] = useState({
     count: 0,
     previous: null,
-    current: null,
+    current: 0,
+    next: null,
+  });
+
+  const [sharedBoardIds, setSharedBoardIds] = useState([]);
+  const [sharedBoardsPaginationInfo, setSharedBoardsPaginationInfo] = useState({
+    count: 0,
+    previous: null,
+    current: 0,
     next: null,
   });
 
@@ -48,7 +56,7 @@ export default function DataProvider({ children }) {
   const [explorePaginationInfo, setExplorePaginationInfo] = useState({
     count: 0,
     previous: null,
-    current: null,
+    current: 0,
     next: null,
   });
 
@@ -66,6 +74,20 @@ export default function DataProvider({ children }) {
       height: window.innerHeight,
     });
   }, 500); // event fires only once every 500ms
+
+  const getDefaultBoardColor = useCallback((idx) => {
+    const defaultBoardColors = [
+      '#FFEEC3',
+      '#B6D8FF',
+      '#B0ECFF',
+      '#E0D9FE',
+      '#FFAEC3',
+    ];
+    const colorCount = defaultBoardColors.length;
+    let finalIdx =
+      idx >= 0 ? idx % colorCount : Math.floor(Math.random() * colorCount);
+    return defaultBoardColors[finalIdx];
+  }, []);
 
   // ROUTEMODAL
   const [routeModalSize, setRouteModalSize] = useState('fullscreen');
@@ -152,75 +174,95 @@ export default function DataProvider({ children }) {
     });
   };
 
-  // FETCHERS
-  // FETCHER: My boards
-  const [fetchMyBoardsState, fetchMyBoards] = useFetch('GET', '/boards/');
-  useEffect(() => {
-    // callback after my boards are fetched
-    if (!fetchMyBoardsState.loading && fetchMyBoardsState.res?.data) {
+  const handleBoardsFetch = useCallback((fetchState, shared = false) => {
+    if (!fetchState.loading && fetchState.res?.data) {
       // store pagination info
-      const current = fetchMyBoardsState.fetchArgs.query?.page;
-      const { count, next, previous, results } = fetchMyBoardsState.res.data;
+      const current = fetchState.fetchArgs.query?.page;
+      const { count, next, previous, results } = fetchState.res.data;
 
-      if (!count || !next || !previous || !results) return;
-
-      setMyBoardsPaginationInfo({
-        count,
-        previous,
-        current,
-        next,
-      });
+      const newPaginationInfo = { count, previous, current, next };
 
       // process boards and links
       const currentTime = new Date().getTime();
       const processedBoards = {};
       const processedLinks = {};
       const boardIds = []; // store board ids in myBoardIds
-      results.forEach((board) => {
-        processedBoards[board.board_id] = {
-          ...board,
-          links: board.links.map((link) => link.link_id), // store only link IDs
-          page: current, // store pagination information,
-          lastUpdate: currentTime, // (cache) last fetched time
-        };
 
-        board.links.forEach((link) => {
-          processedLinks[link.link_id] = {
-            ...link,
-            lastUpdate: currentTime,
+      // process the boards
+      if (results) {
+        results.forEach((board) => {
+          processedBoards[board.board_id] = {
+            ...board,
+            links: board.links.map((link) => link.link_id), // store only link IDs
+            page: current, // store pagination information,
+            lastUpdate: currentTime, // (cache) last fetched time
           };
+
+          board.links.forEach((link) => {
+            processedLinks[link.link_id] = {
+              ...link,
+              lastUpdate: currentTime,
+            };
+          });
+
+          boardIds.push(board.board_id);
         });
+      }
 
-        boardIds.push(board.board_id);
-      });
-
-      setMyBoardIds((prev) => {
+      const setBoardIds = (prev) => {
         // discard all pages later than the current one loading
-        // in case of out of order page fetch, check length of myBoardIds first
-        const newMyBoardIds = prev.slice(
+        // in case of out of order page fetch, check length of boardIds first
+        const newBoardIds = prev.slice(
           0,
           current <= prev.length ? current : prev.length
         );
 
-        // make sure that newMyBoardIds[current - 1] exists
-        while (newMyBoardIds.length < current) {
-          newMyBoardIds.push([]);
+        // make sure that newBoardIds[current - 1] exists
+        while (newBoardIds.length < current) {
+          newBoardIds.push([]);
         }
 
         // append the board IDs
-        newMyBoardIds[current - 1] = boardIds;
-        return newMyBoardIds;
-      });
+        newBoardIds[current - 1] = boardIds;
+        return newBoardIds;
+      };
+      if (!shared) {
+        setMyBoardsPaginationInfo(newPaginationInfo);
+        setMyBoardIds(setBoardIds);
+      } else {
+        setSharedBoardsPaginationInfo(newPaginationInfo);
+        setSharedBoardIds(setBoardIds);
+      }
 
       // store processed boards and links
       updateBoards(processedBoards);
       updateLinks(processedLinks, 0, [boardIds]);
-    } else if (fetchMyBoardsState.err) {
+    } else if (fetchState.err) {
       // TODO Error handling
       // TODO invalid page (404)
     }
-    // eslint-disable-next-line
-  }, [fetchMyBoardsState]);
+  }, []);
+
+  // FETCHERS
+  // FETCHER: My boards
+  const [fetchMyBoardsState, fetchMyBoards] = useFetch('GET', '/boards/', {
+    useCache: true,
+  });
+  useEffect(() => {
+    handleBoardsFetch(fetchMyBoardsState, false);
+  }, [fetchMyBoardsState, handleBoardsFetch]);
+
+  // FETCHER: Shared boards
+  const [fetchSharedBoardsState, fetchSharedBoards] = useFetch(
+    'GET',
+    '/boards/',
+    {
+      useCache: true,
+    }
+  );
+  useEffect(() => {
+    handleBoardsFetch(fetchSharedBoardsState, true);
+  }, [fetchSharedBoardsState, handleBoardsFetch]);
 
   // fetch individual board
   const [fetchBoardState, fetchBoard] = useFetch('GET', '/boards/:id/');
@@ -345,6 +387,9 @@ export default function DataProvider({ children }) {
     myBoardsPaginationInfo,
     fetchMyBoardsState,
     fetchMyBoards,
+    sharedBoardsPaginationInfo,
+    fetchSharedBoardsState,
+    fetchSharedBoards,
     exploreLinkIds,
     explorePaginationInfo,
     exploreFetchState,
@@ -355,6 +400,7 @@ export default function DataProvider({ children }) {
     handleRouteModalClose,
     routeModalSize,
     setRouteModalSize,
+    getDefaultBoardColor,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

@@ -131,7 +131,7 @@ export default function FormField({
       )}
       <div
         style={{ width: '100%', position: 'relative' }}
-        className="input-container"
+        className={`input-container${!doValidate || isValid ? '' : ' invalid'}`}
         onClick={handleInputClick}
       >
         {inputElement()}

@@ -58,9 +58,10 @@ export default function BoardSelect({ control, ...props }) {
             />
           </div>
           <BoardList className="no-scrollbar">
-            {flatten(myBoardIds).map((boardId) => (
+            {flatten(myBoardIds).map((boardId, idx) => (
               <SmallBoardItem
                 key={boardId}
+                idx={idx}
                 boardInfo={boards[boardId]}
                 onClick={() => handleSelect(boardId)}
               />

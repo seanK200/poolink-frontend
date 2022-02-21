@@ -10,7 +10,7 @@ import { useData } from '../../contexts/DataProvider';
 import useFieldControl from '../../hooks/useFieldControl';
 
 export default function AddLinkRoute({ isRouteModalOpen }) {
-  const { setRouteModalSize, handleRouteModalClose } = useData();
+  const { setRouteModalSize, handleRouteModalClose, windowSize } = useData();
 
   const [linkUrl, linkUrlIsValid, linkUrlField] = useFieldControl();
   const [linkLabel, linkLabelIsValid, linkLabelField] = useFieldControl();
@@ -20,6 +20,8 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
   const [linkBoardId, linkBoardIdIsValid, linkBoardIdField] = useFieldControl();
 
   const [containerPadding, setContainerPadding] = useState(0);
+  const [modalFooterShadow, setModalFooterShadow] = useState(false);
+  const containerRef = useRef(null);
   const footerRef = useRef(null);
 
   useEffect(() => {
@@ -28,11 +30,17 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
   }, []);
 
   useEffect(() => {
-    if (!footerRef.current) return;
+    if (!containerRef.current || !footerRef.current) return;
     const { height } = footerRef.current.getBoundingClientRect();
-    const margin = 8;
-    setContainerPadding(height + margin);
-  }, [footerRef]);
+    setContainerPadding(height);
+  }, [containerRef, footerRef]);
+
+  useEffect(() => {
+    if (!containerRef.current || !footerRef.current) return;
+    const { height } = containerRef.current.getBoundingClientRect();
+    const scrollHeight = containerRef.current.scrollHeight;
+    setModalFooterShadow(scrollHeight > height);
+  }, [containerRef, footerRef, windowSize]);
 
   const isFormValid = () => {
     return (
@@ -49,6 +57,7 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
       <Container
         className="RouteModal__Content-container small autocomplete-container"
         style={{ paddingBottom: containerPadding || '0px' }}
+        ref={containerRef}
       >
         <Form id="form-add-link" isValid={isFormValid()}>
           <FormField
@@ -82,6 +91,7 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
       </Container>
       <ModalFooter
         footerRef={footerRef}
+        shadow={modalFooterShadow}
         style={{ display: 'flex', justifyContent: 'right' }}
       >
         <Button
