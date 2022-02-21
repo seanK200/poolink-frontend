@@ -175,18 +175,6 @@ const ButtonsContainer = styled.div`
   display: flex;
 `;
 
-const BlueButton = styled.button`
-  width: 130px;
-  height: 44px;
-  border-radius: 10px;
-  font-family: Pretendard;
-  font-weight: 700;
-  font-size: 1.1rem;
-  line-height: 1.5rem;
-  background-color: var(--color-primary);
-  color: white;
-`;
-
 const BoardBio = styled.div`
   width: 100%;
   height: 75px;
