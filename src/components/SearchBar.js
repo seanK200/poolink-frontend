@@ -89,6 +89,7 @@ const StyledSearchBar = styled.div`
   background-color: var(--color-secondary);
   height: 36px;
   padding: 0 16px;
+  margin-right: 24px;
   font-family: Pretendard;
   font-weight: 500;
   font-size: 1rem;
@@ -97,4 +98,7 @@ const StyledSearchBar = styled.div`
   align-items: center;
   width: ${(props) => (props.isCollapsed ? 'auto' : '100%')};
   max-width: 728px;
+  & input {
+    display: ${({ isCollapsed }) => (isCollapsed ? 'none' : 'block')};
+  }
 `;

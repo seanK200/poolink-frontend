@@ -1,17 +1,25 @@
 import React from 'react';
 import Button from '../../components/buttons/Button';
 import styled from 'styled-components';
-import { Outlet, Route, Routes } from 'react-router-dom';
+import {
+  Outlet,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { useData } from '../../contexts/DataProvider';
 
 export default function BoardsLayout() {
   const { myBoardsPaginationInfo } = useData();
+  let location = useLocation();
+
   return (
     <div className="view-content">
       <BlueContainer>
         <ToolBar>
           <NumberOfBoards>
-            <Routes>
+            <Routes location={location?.state?.backgroundLocation || location}>
               <Route
                 path="my"
                 element={`내 보드 ${myBoardsPaginationInfo.count}개`}

@@ -11,10 +11,13 @@ import { breakpoints } from '../consts/responsive';
 import HideMobile from './utilites/HideMobile';
 import AccountProfile from './AccountProfile';
 import NotificationsButton from './buttons/NotificationsButton';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Topbar({ showSidebar }) {
   const { windowSize } = useData();
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const navigate = useNavigate();
+  let location = useLocation();
 
   return (
     <StyledTopbar>
@@ -43,6 +46,9 @@ export default function Topbar({ showSidebar }) {
             style={{ marginLeft: '8px' }}
             className="secondary small"
             icon={PlusSvg}
+            onClick={() =>
+              navigate('/link/new', { state: { backgroundLocation: location } })
+            }
           >
             {isCollapsed ? '링크 추가' : ''}
           </Button>
