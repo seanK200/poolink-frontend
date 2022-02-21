@@ -68,7 +68,12 @@ export default function BoardItem({ boardInfo }) {
         <Button
           icon={
             <img
-              src={process.env.PUBLIC_URL + '/assets/FavoritesIcon.png'}
+              src={
+                process.env.PUBLIC_URL +
+                `/assets/FavoritesIcon${
+                  boardInfo.is_bookmarked ? '' : 'Disabled'
+                }.png`
+              }
               alt="Favorites"
             />
           }
