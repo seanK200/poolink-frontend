@@ -30,7 +30,7 @@ export default function BoardRoute() {
       <BoardInfoContainer>
         <Emoji emoji={boardInfo.emoji}>{boardInfo.emoji}</Emoji>
         <RightBoardInfoContainer>
-          <BoardNameAndScrapContainer>
+          <BoardNameAndBlueButtonContainer>
             <BoardNameContainer>
               <BoardName>{boardInfo.name}</BoardName>
               <ButtonsContainer>
@@ -78,8 +78,8 @@ export default function BoardRoute() {
             >
               {isMyBoard ? '공유' : '스크랩하기'}
             </Button>
-          </BoardNameAndScrapContainer>
-          <BoardBio>{boardInfo.bio}</BoardBio>
+          </BoardNameAndBlueButtonContainer>
+          <BoardBio className="no-scrollbar">{boardInfo.bio}</BoardBio>
           <HashTags>#여행 #공간 #힐링</HashTags>
         </RightBoardInfoContainer>
       </BoardInfoContainer>
@@ -140,15 +140,16 @@ const Emoji = styled.div`
   height: 88px;
   background-color: ${(props) => (props.emoji ? 'none' : 'var(--color-g8)')};
   margin-right: 30px;
+  flex-shrink: 0;
 `;
 
 const RightBoardInfoContainer = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 `;
 
-const BoardNameAndScrapContainer = styled.div`
+const BoardNameAndBlueButtonContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -164,7 +165,7 @@ const BoardNameContainer = styled.div`
 const BoardName = styled.div`
   font-family: Pretendard;
   font-weight: 700;
-  font-size: 2.25rem;
+  font-size: 2rem;
   line-height: 3rem;
   color: black;
   margin-right: 20px;
@@ -177,18 +178,17 @@ const ButtonsContainer = styled.div`
 
 const BoardBio = styled.div`
   width: 100%;
+  max-width: 100%;
   height: 75px;
   font-family: Pretendard;
   font-weight: 400;
   font-size: 1rem;
   line-height: 1.5rem;
   color: var(--color-g3);
+  overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
-  overflow-y: scroll;
-  ::-webkit-scrollbar {
-    display: none;
-  }
+  word-break: break-all;
 `;
 
 const HashTags = styled.div`
@@ -197,7 +197,7 @@ const HashTags = styled.div`
   font-size: 1rem;
   line-height: 1.5rem;
   color: var(--color-g5);
-  margin: 0 0 24px 0;
+  margin: 16px 0 24px 0;
 `;
 
 const ToolBar = styled.div`
@@ -223,4 +223,7 @@ const LinkContainer = styled.div`
   display: flex;
   align-items: flex-start;
   flex-wrap: wrap;
+  @media only screen and (max-width: 680px) {
+    justify-content: center;
+  }
 `;
