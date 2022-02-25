@@ -26,7 +26,9 @@ export default function LinkItem({ linkInfo }) {
             <MenuButton />
           </ButtonContainer>
         </LinkNameAndButtonContainer>
-        <LinkMemo memo={linkInfo.memo}>{linkInfo.memo}</LinkMemo>
+        <LinkMemo className="no-scrollbar" memo={linkInfo.memo}>
+          {linkInfo.memo}
+        </LinkMemo>
         <LinkUrlContainer>
           <Favicon faviconSrc={linkInfo.favicon} />
           <LinkUrl>{getDomainName(linkInfo.url)}</LinkUrl>
@@ -90,10 +92,6 @@ const ButtonContainer = styled.div`
 const LinkMemo = styled.div`
   width: 100%;
   height: 40px;
-  overflow-y: scroll;
-  ::-webkit-scrollbar {
-    display: none;
-  }
   ${(props) => {
     return props.memo ? 'margin: 16px 0 8px 0;' : '';
     /*
@@ -107,6 +105,7 @@ const LinkMemo = styled.div`
   font-size: 0.85rem;
   line-height: 1.1rem;
   color: var(--color-g5);
+  overflow: scroll;
 `;
 
 const LinkUrlContainer = styled.div`
