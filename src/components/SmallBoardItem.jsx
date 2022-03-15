@@ -1,13 +1,19 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useData } from '../contexts/DataProvider';
 
 export default function SmallBoardItem({ boardInfo, idx, ...props }) {
   const { getDefaultBoardColor } = useData();
+  let navigate = useNavigate();
+
+  const handleClick = (e) => {
+    navigate(`/board/${boardInfo.board_id}`);
+  };
 
   if (!boardInfo) return null;
   return (
-    <Container {...props}>
+    <Container onClick={handleClick} {...props}>
       {boardInfo.emoji ? (
         <Emoji>{boardInfo.emoji}</Emoji>
       ) : (
@@ -30,6 +36,7 @@ const Container = styled.div`
   &:hover {
     background-color: var(--color-g9);
   }
+  cursor: pointer;
 `;
 
 const Emoji = styled.div`
