@@ -41,8 +41,13 @@ input.minimal {
 }
 
 input::placeholder,
+textarea::placeholder,
 div.fake-input.empty {
   color: var(--color-g6);
+}
+
+div.fake-input.empty::before {
+  content: attr(placeholder);
 }
 
 input.invalid,
@@ -65,11 +70,25 @@ div.fake-input.focus {
   border-color: var(--color-primary);
 }
 
+input:disabled,
+div.fake-input.disabled {
+  color: var(--color-g7);
+  background-color: var(--color-g9);
+}
+
 label {
   font-weight: 500;
   font-size: 1rem;
   color: black;
   margin-bottom: 8px;
+}
+
+label.invalid {
+  color: var(--color-red);
+}
+
+label img {
+  height: 1rem;
 }
 
 label span.required {

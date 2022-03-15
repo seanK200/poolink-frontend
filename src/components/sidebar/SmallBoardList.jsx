@@ -5,10 +5,18 @@ import SmallBoardItem from '../SmallBoardItem';
 import styled from 'styled-components';
 
 export default function SmallBoardList({ favorites = false }) {
-  const { boards, myBoardIds, fetchMyBoards, fetchSharedBoards } = useData();
-  const boardIds = flatten(myBoardIds).filter((boardId) => {
-    return favorites === boards[boardId].is_bookmarked;
-  });
+  const {
+    boards,
+    myBoardIds,
+    sharedBoardIds,
+    fetchMyBoards,
+    fetchSharedBoards,
+  } = useData();
+  const boardIds = flatten([...myBoardIds, ...sharedBoardIds]).filter(
+    (boardId) => {
+      return favorites === boards[boardId].is_bookmarked;
+    }
+  );
 
   useEffect(() => {
     fetchMyBoards({ query: { page: 1 }, useCache: true });

@@ -10,9 +10,9 @@ export const API_BASE_URL = IS_DEV
 const defaultOptions = {
   config: null,
   useToken: true,
-  timeout: 5000,
+  timeout: 10000,
   useCache: false,
-  cacheRefreshInterval: 1 * 30 * 1000, // 30 secs (in ms),
+  cacheRefreshInterval: 1 * 10 * 1000, // 10 secs (in ms),
   attemptTokenRefresh: true,
   maxRetry: 3,
   throttle: 0,
@@ -217,7 +217,6 @@ export function useManualFetch(method, url, options = null) {
         // make request and wait for response
         const res = await axios.request({
           baseURL: API_BASE_URL,
-          timeout: options.timeout,
           url: getFinalUrl(url, params, query),
           method: method,
           data: data,

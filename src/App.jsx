@@ -4,7 +4,9 @@ import styled from 'styled-components';
 import RouteModal from './components/modals/RouteModal';
 import { useData } from './contexts/DataProvider';
 import DefaultLayout from './routes';
-import BoardRoute from './routes/board/$boardId';
+import EditBoardRoute from './routes/board/$boardId/edit';
+import BoardRoute from './routes/board/$boardId/index';
+import AddBoardRoute from './routes/board/new';
 import BoardsLayout from './routes/boards/index';
 import BoardsMyRoute from './routes/boards/my';
 import BoardsSharedRoute from './routes/boards/shared';
@@ -52,6 +54,14 @@ function App() {
             <Route path="general" element={<SettingsGeneralRoute />} />
           </Route>
           <Route path="board/:boardId" element={<BoardRoute />} />
+          <Route
+            path="board/:boardId/edit"
+            element={<Navigate to="/" replace={true} />}
+          />
+          <Route
+            path="board/new"
+            element={<Navigate to="/" replace={true} />}
+          />
           <Route path="link/:linkId" element={<LinkRoute />} />
           <Route path="link/new" element={<Navigate to="/" replace={true} />} />
         </Route>
@@ -82,6 +92,14 @@ function App() {
             element={<AddLinkRoute isRouteModalOpen />}
           ></Route>
           <Route
+            path="board/new"
+            element={<AddBoardRoute isRouteModalOpen />}
+          />
+          <Route
+            path="board/:boardId/edit"
+            element={<EditBoardRoute isRouteModalOpen />}
+          />
+          <Route
             path="*"
             element={
               <div className={`RouteModal__Content ${routeModalSize}`} />
@@ -99,3 +117,5 @@ const Wrapper = styled.div`
 `;
 
 export default App;
+
+/*  Copyright 2022 Youngwoo Kim, Yunsun Jung */

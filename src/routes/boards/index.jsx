@@ -13,6 +13,11 @@ import { useData } from '../../contexts/DataProvider';
 export default function BoardsLayout() {
   const { myBoardsPaginationInfo } = useData();
   let location = useLocation();
+  const navigate = useNavigate();
+
+  const handleAddBoardClick = () => {
+    navigate('/board/new', { state: { backgroundLocation: location } });
+  };
 
   return (
     <div className="view-content">
@@ -29,6 +34,7 @@ export default function BoardsLayout() {
           </NumberOfBoards>
           <ButtonContainer>
             <Button
+              onClick={handleAddBoardClick}
               className="minimal"
               icon={
                 <img
