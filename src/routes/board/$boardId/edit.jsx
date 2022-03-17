@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import EditBoardModal from '../../../components/EditBoardModal';
+import EditBoardModal from '../../../components/modals/EditBoardModal'
 import { useData } from '../../../contexts/DataProvider';
 import useFetch from '../../../hooks/useFetch';
 

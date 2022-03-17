@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import useRouteModal from '../hooks/useRouteModal';
-import ModalHeader from './modals/ModalHeader';
-import ModalFooter from './modals/ModalFooter';
-import Form from './utilites/Form';
-import FormField from './utilites/FormField';
-import useFieldControl from '../hooks/useFieldControl';
-import Button from './buttons/Button';
-import { useData } from '../contexts/DataProvider';
-import { useAuth } from '../contexts/AuthProvider';
+import useRouteModal from '../../hooks/useRouteModal';
+import ModalHeader from './ModalHeader';
+import ModalFooter from './ModalFooter';
+import Form from '../utilites/Form';
+import FormField from '../utilites/FormField';
+import useFieldControl from '../../hooks/useFieldControl';
+import Button from '../buttons/Button';
+import { useData } from '../../contexts/DataProvider';
+import { useAuth } from '../../contexts/AuthProvider';
 
 export default function EditBoardModal({
   initialBoardInfo,

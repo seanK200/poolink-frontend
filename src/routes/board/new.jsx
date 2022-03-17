@@ -1,5 +1,5 @@
 import React from 'react';
-import EditBoardModal from '../../components/EditBoardModal';
+import EditBoardModal from '../../components/modals/EditBoardModal';
 import useFetch from '../../hooks/useFetch';
 
 export default function AddBoardRoute() {
