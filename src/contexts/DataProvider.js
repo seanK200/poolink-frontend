@@ -268,37 +268,38 @@ export default function DataProvider({ children }) {
   const [fetchBoardState, fetchBoard] = useFetch('GET', '/boards/:id/', {
     useCache: true,
   });
+
+  const updateBoard = (boardInfo) => {
+    if (!boardInfo) return;
+
+    const processedLinks = {};
+    const processedBoards = {};
+    const currentTime = new Date().getTime();
+
+    // process board
+    processedBoards[boardInfo.board_id] = {
+      ...boardInfo,
+      links: boardInfo.links.map((link) => link.link_id),
+      lastUpdate: currentTime,
+    };
+
+    // process boards
+    boardInfo.links.forEach((link) => {
+      processedLinks[link.link_id] = {
+        ...link,
+        lastUpdate: currentTime,
+      };
+    });
+
+    updateBoards(processedBoards);
+    updateLinks(processedLinks, 0, [boardInfo.board_id]);
+  };
+
   useEffect(() => {
     const { loading, res, err } = fetchBoardState;
-    if (!loading) {
-      if (res) {
-        const boardInfo = res?.data;
-        if (boardInfo) {
-          const processedLinks = {};
-          const processedBoards = {};
-          const currentTime = new Date().getTime();
-
-          // process board
-          processedBoards[boardInfo.board_id] = {
-            ...boardInfo,
-            links: boardInfo.links.map((link) => link.link_id),
-            lastUpdate: currentTime,
-          };
-
-          // process boards
-          boardInfo.links.forEach((link) => {
-            processedLinks[link.link_id] = {
-              ...link,
-              lastUpdate: currentTime,
-            };
-          });
-
-          updateBoards(processedBoards);
-          updateLinks(processedLinks, 0, [boardInfo.board_id]);
-        }
-      } else if (err) {
-      }
-    }
+    if (loading || !res) return;
+    const boardInfo = res?.data;
+    updateBoard(boardInfo);
   }, [fetchBoardState]);
 
   // Fetch Explore links
@@ -404,6 +405,7 @@ export default function DataProvider({ children }) {
     routeModalSize,
     setRouteModalSize,
     getDefaultBoardColor,
+    updateBoard,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

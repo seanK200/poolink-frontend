@@ -108,6 +108,10 @@ export default function useFieldControl({
   };
 
   useEffect(() => {
+    if (doValidate) validateField();
+  }, []);
+
+  useEffect(() => {
     validateField();
     // eslint-disable-next-line
   }, [value, doValidate]);

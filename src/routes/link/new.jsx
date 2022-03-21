@@ -14,7 +14,7 @@ import useFetch from '../../hooks/useFetch';
 import useRouteModal from '../../hooks/useRouteModal';
 
 export default function AddLinkRoute({ isRouteModalOpen }) {
-  const { handleRouteModalClose } = useData();
+  const { handleRouteModalClose, fetchBoard } = useData();
 
   // Form validation
   const [linkUrl, linkUrlIsValid, linkUrlField] = useFieldControl({
@@ -49,6 +49,7 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
       board: linkBoard.board_id,
       label: linkLabel,
       url: linkUrl,
+      memo: linkMemo,
       show: true,
     };
     createLink({ data });
@@ -56,6 +57,7 @@ export default function AddLinkRoute({ isRouteModalOpen }) {
   useEffect(() => {
     if (createLinkState.loading || !createLinkState.res) return;
     handleRouteModalClose(null, false);
+    fetchBoard({ params: { id: linkBoard.board_id }, useCache: false });
     // eslint-disable-next-line
   }, [createLinkState]);
 

@@ -16,7 +16,7 @@ export default function EditBoardModal({
   fetcher,
 }) {
   const { userProfile } = useAuth();
-  const { handleRouteModalClose } = useData();
+  const { handleRouteModalClose, updateBoard, fetchMyBoards } = useData();
 
   if (initialBoardInfo?.bio === null) {
     initialBoardInfo.bio = '';
@@ -32,23 +32,27 @@ export default function EditBoardModal({
     initValues: {
       value:
         initialBoardInfo?.emoji === undefined ? null : initialBoardInfo.emoji,
+      doValidate: initialBoardInfo?.emoji === undefined ? false : true,
     },
   });
   const [boardName, isBoardNameValid, boardNameField] = useFieldControl({
     initValues: {
       value: initialBoardInfo?.name || '',
+      doValidate: initialBoardInfo?.name ? true : false,
     },
   });
   const [boardBio, isBoardBioValid, boardBioField] = useFieldControl({
     required: false,
     initValues: {
       value: initialBoardInfo?.bio || '',
+      doValidate: initialBoardInfo?.bio ? true : false,
     },
   });
   const [boardTags, isBoardTagsValid, boardTagsField] = useFieldControl({
     required: false,
     initValues: {
       value: initialBoardInfo?.tags?.map((tag) => tag.name) || [],
+      doValidate: initialBoardInfo?.tags?.length ? true : false,
     },
   });
 
@@ -92,7 +96,7 @@ export default function EditBoardModal({
         emoji: boardEmoji,
         name: boardName,
         bio: boardBio,
-        tags: boardTags,
+        tags: boardTags.map((tagName) => ({ name: tagName })),
         user: userProfile.userId,
       };
       fetcher({ params: { id: initialBoardInfo.board_id }, data });
@@ -101,7 +105,7 @@ export default function EditBoardModal({
       data = {
         name: boardName,
         user: userProfile.userId,
-        tags: boardTags,
+        tags: boardTags.map((tagName) => ({ name: tagName })),
       };
       fetcher({ data });
     }
@@ -110,6 +114,14 @@ export default function EditBoardModal({
   useEffect(() => {
     if (fetchState?.loading || !fetchState?.res) return;
     handleRouteModalClose(null, false);
+
+    // update
+    if (initialBoardInfo) {
+      const updatedBoardInfo = fetchState.res.data;
+      updateBoard(updatedBoardInfo);
+    } else {
+      fetchMyBoards({ query: { page: 1 }, useCache: false });
+    }
     // eslint-disable-next-line
   }, [fetchState]);
 
