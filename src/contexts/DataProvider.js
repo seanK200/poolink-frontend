@@ -102,34 +102,36 @@ export default function DataProvider({ children }) {
   const updateBoards = (processedBoards, pageNum = 0) => {
     // processedBoards must be in object form
     setBoards((prev) => {
-      const prevBoards = { ...prev }; // make a copy
-
-      // in case of paginated result fetch, remove all cached data
-      // that is in a later page than the current page
-      if (pageNum > 0) {
-        for (const boardId in prevBoards) {
-          // check if there is pagination info on the cached data
-          // if so, check page number
-          if (
-            prevBoards[boardId]?.page &&
-            prevBoards[boardId].page >= pageNum
-          ) {
-            prevBoards[boardId] = null;
-          }
-        }
-      }
-
-      const newBoards = {}; // final return value
-
-      // remove all null entries
-      for (const boardId in prevBoards) {
-        if (prevBoards[boardId]) {
-          newBoards[boardId] = prevBoards[boardId];
-        }
-      }
+      const newBoards = { ...prev }; // final return value
 
       // append newly processed boards
-      return { ...prevBoards, ...processedBoards };
+      for (const boardId in processedBoards) {
+        if (newBoards[boardId]) {
+          // only update if the incoming data is newer
+          if (
+            processedBoards[boardId].lastUpdate > newBoards[boardId].lastUpdate
+          ) {
+            // update only the incoming fields
+            if (
+              newBoards[boardId].links?.length >
+              processedBoards[boardId].links?.length
+            ) {
+              // boards/my and boards/share only fetches two links from board
+              // if this is the case, do not overwrite the exisisting data
+              delete processedBoards[boardId].links;
+            }
+            newBoards[boardId] = {
+              ...newBoards[boardId],
+              ...processedBoards[boardId],
+            };
+          }
+        } else {
+          // if it is a new board, add to the data
+          newBoards[boardId] = processedBoards[boardId];
+        }
+      }
+
+      return newBoards;
     });
   };
 
