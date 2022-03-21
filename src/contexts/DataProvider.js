@@ -170,7 +170,25 @@ export default function DataProvider({ children }) {
       }
 
       // append newly processed links
-      return { ...newLinks, ...processedLinks };
+      for (const linkId in processedLinks) {
+        if (newLinks[linkId]) {
+          // if already exist, then
+          // update if the incoming information is newer
+          if (processedLinks[linkId].lastUpdate > newLinks[linkId].lastUpdate) {
+            // only update the newly incoming fields
+            newLinks[linkId] = {
+              ...newLinks[linkId],
+              ...processedLinks[linkId],
+            };
+          }
+          // if not, leave the original untouched
+        } else {
+          // if it doesn't exist, add it to links
+          newLinks[linkId] = processedLinks[linkId];
+        }
+      }
+
+      return newLinks;
     });
   };
 
@@ -236,7 +254,7 @@ export default function DataProvider({ children }) {
 
       // store processed boards and links
       updateBoards(processedBoards);
-      updateLinks(processedLinks, 0, [boardIds]);
+      updateLinks(processedLinks, 0);
     } else if (fetchState.err) {
       // TODO Error handling
       // TODO invalid page (404)
@@ -271,7 +289,6 @@ export default function DataProvider({ children }) {
 
   const updateBoard = (boardInfo) => {
     if (!boardInfo) return;
-
     const processedLinks = {};
     const processedBoards = {};
     const currentTime = new Date().getTime();
