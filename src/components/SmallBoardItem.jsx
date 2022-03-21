@@ -42,7 +42,6 @@ const Container = styled.div`
 const Emoji = styled.div`
   width: 16px;
   height: 16px;
-  background-color: #b6d8ff;
   margin-right: 16px;
 `;
 
