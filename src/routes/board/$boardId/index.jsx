@@ -1,16 +1,21 @@
 import React, { useEffect } from 'react';
-import LinkItem from '../../components/LinkItem';
+import LinkItem from '../../../components/LinkItem';
 import styled from 'styled-components';
-import CopyButton from '../../components/buttons/CopyButton';
-import Button from '../../components/buttons/Button';
-import { useData } from '../../contexts/DataProvider';
-import { useParams } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthProvider';
+import CopyButton from '../../../components/buttons/CopyButton';
+import Button from '../../../components/buttons/Button';
+import { useData } from '../../../contexts/DataProvider';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthProvider';
+import Emoji from '../../../components/utilites/Emoji';
+import { BOARD_DELETE_WARNING } from '../../../consts/strings';
+import useFetch from '../../../hooks/useFetch';
 
 export default function BoardRoute() {
   const { userProfile } = useAuth();
   const { boards, links, fetchBoard } = useData();
   const { boardId } = useParams();
+  let navigate = useNavigate();
+  let location = useLocation();
 
   const boardInfo = boards[boardId] || null;
   const isMyBoard = boardInfo?.user === userProfile?.userId;
@@ -20,6 +25,30 @@ export default function BoardRoute() {
     // eslint-disable-next-line
   }, [boardId]);
 
+  const handleEditBoardClick = (e) => {
+    navigate('edit', { state: { backgroundLocation: location } });
+  };
+
+  const [deleteBoardState, deleteBoard] = useFetch('DELETE', '/boards/:id/');
+
+  const handleBoardDelete = (e) => {
+    if (!isMyBoard) return;
+    if (deleteBoardState.loading) return;
+    if (!window.confirm(BOARD_DELETE_WARNING)) return;
+    deleteBoard({ params: { id: boardId } });
+  };
+
+  useEffect(() => {
+    if (deleteBoardState.loading) return;
+    if (deleteBoardState.err) {
+      alert('보드 삭제에 실패하였습니다.');
+    } else if (deleteBoardState.res) {
+      navigate('/');
+    }
+
+    // eslint-disable-next-line
+  }, [deleteBoardState]);
+
   if (boardInfo === null) {
     // TODO Loading screen
     return null;
@@ -28,13 +57,19 @@ export default function BoardRoute() {
   return (
     <Container>
       <BoardInfoContainer>
-        <Emoji emoji={boardInfo.emoji}>{boardInfo.emoji}</Emoji>
+        {boardInfo.emoji && (
+          <Emoji
+            symbol={boardInfo.emoji}
+            style={{ fontSize: '4rem', marginRight: '32px' }}
+          />
+        )}
         <RightBoardInfoContainer>
           <BoardNameAndBlueButtonContainer>
             <BoardNameContainer>
               <BoardName>{boardInfo.name}</BoardName>
               <ButtonsContainer>
                 <Button
+                  onClick={handleEditBoardClick}
                   icon={
                     <img
                       src={process.env.PUBLIC_URL + '/assets/EditIcon.png'}
@@ -48,21 +83,32 @@ export default function BoardRoute() {
                     margin: '0 14px',
                   }}
                 />
-                <CopyButton style={{ margin: '0 14px' }} />
-                <Button
-                  icon={
-                    <img
-                      src={process.env.PUBLIC_URL + '/assets/DeleteIcon.png'}
-                      alt="Delete"
-                    />
+                <CopyButton
+                  style={{ margin: '0 14px' }}
+                  text={
+                    window.location.protocol +
+                    '//' +
+                    window.location.host +
+                    location.pathname
                   }
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    fontSize: '1.1rem',
-                    margin: '0 14px',
-                  }}
                 />
+                {isMyBoard && (
+                  <Button
+                    icon={
+                      <img
+                        src={process.env.PUBLIC_URL + '/assets/DeleteIcon.png'}
+                        alt="Delete"
+                      />
+                    }
+                    style={{
+                      width: '30px',
+                      height: '30px',
+                      fontSize: '1.1rem',
+                      margin: '0 14px',
+                    }}
+                    onClick={handleBoardDelete}
+                  />
+                )}
               </ButtonsContainer>
             </BoardNameContainer>
             <Button
@@ -80,7 +126,11 @@ export default function BoardRoute() {
             </Button>
           </BoardNameAndBlueButtonContainer>
           <BoardBio className="no-scrollbar">{boardInfo.bio}</BoardBio>
-          <HashTags>#여행 #공간 #힐링</HashTags>
+          <HashTags>
+            {boardInfo?.tags?.length
+              ? '#' + boardInfo.tags.map((tag) => tag.name).join(' #')
+              : ''}
+          </HashTags>
         </RightBoardInfoContainer>
       </BoardInfoContainer>
       <div
@@ -132,16 +182,16 @@ const Container = styled.div`
 const BoardInfoContainer = styled.div`
   width: 100%;
   display: flex;
-  padding-right: 32px;
+  padding: 0 32px;
 `;
 
-const Emoji = styled.div`
-  width: 88px;
-  height: 88px;
-  background-color: ${(props) => (props.emoji ? 'none' : 'var(--color-g8)')};
-  margin-right: 30px;
-  flex-shrink: 0;
-`;
+// const Emoji = styled.div`
+//   width: 88px;
+//   height: 88px;
+//   background-color: ${(props) => (props.emoji ? 'none' : 'var(--color-g8)')};
+//   margin-right: 30px;
+//   flex-shrink: 0;
+// `;
 
 const RightBoardInfoContainer = styled.div`
   display: flex;

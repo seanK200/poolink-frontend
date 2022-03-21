@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useData } from '../../contexts/DataProvider';
 import SearchIcon from '../assets/SearchIcon';
@@ -9,10 +9,14 @@ import FormField from '../../components/utilites/FormField';
 import { Plus } from 'react-bootstrap-icons';
 import CustomSelect from './CustomSelect';
 import Button from '../buttons/Button';
+import { useAuth } from '../../contexts/AuthProvider';
+import useFetch from '../../hooks/useFetch';
 
 export default function BoardSelect({ control, ...props }) {
-  const { boards, myBoardIds } = useData();
+  const { userProfile } = useAuth();
+  const { boards, myBoardIds, sharedBoardIds, fetchBoard } = useData();
   const { setValue, handleBlurControl } = control;
+  const [searchInputValue, setSearchInputValue] = useState('');
 
   const [newBoardName, newBoardNameIsValid, newBoardNameField] =
     useFieldControl();
@@ -23,6 +27,31 @@ export default function BoardSelect({ control, ...props }) {
     newBoardNameField.initializeField();
     handleBlurControl();
   };
+
+  const [createBoardState, createBoard] = useFetch('POST', '/boards/');
+  useEffect(() => {
+    if (createBoardState.loading || !createBoardState.res) return;
+    const newBoardId = createBoardState.res?.data?.id;
+    if (newBoardId) fetchBoard({ params: { id: newBoardId } });
+  }, [createBoardState]);
+
+  const handleBoardCreate = () => {
+    const data = {
+      user: userProfile.userId,
+      category: [0],
+      name: newBoardName,
+    };
+    createBoard({ data });
+  };
+
+  const handleNewBoardInputKeyDown = (e) => {};
+
+  const boardIds = flatten([...myBoardIds, ...sharedBoardIds]).filter(
+    (boardId) =>
+      searchInputValue
+        ? boards[boardId]?.name?.includes(searchInputValue)
+        : true
+  );
 
   return (
     <CustomSelect control={control} {...props}>
@@ -55,10 +84,12 @@ export default function BoardSelect({ control, ...props }) {
               className="minimal"
               placeholder="보드 검색"
               style={{ paddingLeft: '36px', borderColor: 'var(--color-g7)' }}
+              value={searchInputValue}
+              onChange={(e) => setSearchInputValue(e.target.value)}
             />
           </div>
           <BoardList className="no-scrollbar">
-            {flatten(myBoardIds).map((boardId, idx) => (
+            {boardIds.map((boardId, idx) => (
               <SmallBoardItem
                 key={boardId}
                 idx={idx}
@@ -66,6 +97,12 @@ export default function BoardSelect({ control, ...props }) {
                 onClick={() => handleSelect(boardId)}
               />
             ))}
+            {!boardIds.length && (
+              <NoBoards>
+                {searchInputValue ? '검색 결과가 ' : '보드가 '}
+                없습니다.
+              </NoBoards>
+            )}
           </BoardList>
           <CreateBoard>
             <div
@@ -89,8 +126,13 @@ export default function BoardSelect({ control, ...props }) {
                 control={newBoardNameField}
                 placeholder="새 보드 이름"
                 hideMessage
+                onKeyDown={handleNewBoardInputKeyDown}
               />
-              <Button className="primary small" style={{ flexShrink: '0' }}>
+              <Button
+                className="primary small"
+                style={{ flexShrink: '0' }}
+                disabled={!newBoardNameIsValid}
+              >
                 만들기
               </Button>
             </div>
@@ -111,8 +153,17 @@ const BoardList = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 8px;
-  max-height: 144px;
+  height: 144px;
   overflow: auto;
+`;
+
+const NoBoards = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-g2);
 `;
 
 const CreateBoard = styled.div`

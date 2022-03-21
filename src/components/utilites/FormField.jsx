@@ -1,9 +1,15 @@
-import React, { useRef } from 'react';
-import { ChevronDown } from 'react-bootstrap-icons';
+import React from 'react';
+import { ChevronDown, XLg } from 'react-bootstrap-icons';
 import styled from 'styled-components';
+import TagInput from './TagInput';
+import EmojiPicker from 'emoji-picker-react';
+import { emojiPlaceholder, emojiGroupNames } from '../../consts/strings';
+import Emoji from './Emoji';
 
 export default function FormField({
   label: labelText,
+  labelImgSrc,
+  labelImgAlt,
   type = 'text',
   id,
   placeholder,
@@ -14,7 +20,6 @@ export default function FormField({
   onFocus: handleFocusProp,
   onBlur: handleBlurProp,
   autoComplete,
-  className,
   hideMessage,
   customSelect,
   displayValue: displayValueProp,
@@ -63,8 +68,26 @@ export default function FormField({
     handleBlur();
   };
 
+  const handleEmojiClick = (e, emojiObject) => {
+    handleChangeControl(emojiObject.emoji);
+    handleBlur(e);
+  };
+
+  const handleEmojiClear = () => {
+    handleChangeControl(null);
+  };
+
   const displayValue =
     typeof displayValueProp === 'function' ? displayValueProp(value) : value;
+
+  const getFakeInputClassName = () => {
+    let inputClassName = 'fake-input';
+    if (!displayValue) inputClassName += ' empty';
+    if (doValidate && !isValid) inputClassName += ' invalid';
+    if (focused) inputClassName += ' focus';
+    if (disabled) inputClassName += ' disabled';
+    return inputClassName;
+  };
 
   const inputElement = () => {
     if (type === 'textarea') {
@@ -81,25 +104,87 @@ export default function FormField({
           {...props}
         ></textarea>
       );
-    }
-
-    if (type === 'select') {
-      let inputClassName = 'fake-input';
-      if (!displayValue) inputClassName += ' empty';
-      if (doValidate && !isValid) inputClassName += ' invalid';
-      if (focused) inputClassName += ' focus';
+    } else if (type === 'select') {
       return (
         <React.Fragment>
           <div
-            className={inputClassName}
+            className={getFakeInputClassName()}
             onClick={handleFakeInputClick}
             ref={inputRef}
+            placeholder={placeholder}
+            {...props}
           >
-            {displayValue ? displayValue : placeholder}
+            {displayValue}
           </div>
           <SelectArrowContainer onClick={handleSelectArrowClick}>
             <ChevronDown />
           </SelectArrowContainer>
+          <SelectOverlay onClick={handleSelectOverlayClick} focused={focused} />
+        </React.Fragment>
+      );
+    } else if (type === 'tag') {
+      return (
+        <TagInput
+          control={control}
+          value={displayValue}
+          placeholder={placeholder}
+          disabled={disabled}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+        />
+      );
+    } else if (type === 'emoji') {
+      const emojiDisplayValue =
+        typeof displayValueProp === 'function' ? (
+          displayValueProp(value)
+        ) : value ? (
+          <Emoji
+            symbol={value}
+            style={{ fontSize: '3rem', cursor: 'pointer', lineHeight: 1 }}
+            onClick={handleFakeInputClick}
+          />
+        ) : (
+          ''
+        );
+
+      return (
+        <React.Fragment>
+          {value ? (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+            >
+              <EmojiContainer>{emojiDisplayValue}</EmojiContainer>
+              <ClearEmoji>
+                <XLg onClick={handleEmojiClear} />
+              </ClearEmoji>
+            </div>
+          ) : (
+            <div
+              className={getFakeInputClassName()}
+              onClick={handleFakeInputClick}
+              ref={inputRef}
+              placeholder={placeholder}
+              {...props}
+            ></div>
+          )}
+          <EmojiPicker
+            onEmojiClick={handleEmojiClick}
+            groupNames={emojiGroupNames}
+            searchPlaceholder={emojiPlaceholder}
+            pickerStyle={{
+              position: 'absolute',
+              backgroundColor: '#FFFFFFFF',
+              zIndex: 1,
+              display: focused ? undefined : 'none',
+            }}
+            native={true}
+            disableSearchBar={true}
+          />
           <SelectOverlay onClick={handleSelectOverlayClick} focused={focused} />
         </React.Fragment>
       );
@@ -122,9 +207,12 @@ export default function FormField({
   };
 
   return (
-    <div className={`input-group${className ? ' ' + className : ''}`}>
-      {labelText && (
-        <label htmlFor={id}>
+    <div className={`input-group`}>
+      {(labelText || labelImgSrc) && (
+        <label htmlFor={id} className={!doValidate || isValid ? '' : 'invalid'}>
+          {labelImgSrc && (
+            <img src={labelImgSrc} alt={labelImgAlt || labelText} />
+          )}
           {labelText}
           <span className="required">{control.required && '*'}</span>
         </label>
@@ -165,4 +253,17 @@ const SelectOverlay = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
+`;
+
+const EmojiContainer = styled.div`
+  &:hover {
+    background-color: var(--color-g8);
+  }
+`;
+
+const ClearEmoji = styled.div`
+  display: flex;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-left: 2px;
 `;

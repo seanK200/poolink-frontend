@@ -102,34 +102,36 @@ export default function DataProvider({ children }) {
   const updateBoards = (processedBoards, pageNum = 0) => {
     // processedBoards must be in object form
     setBoards((prev) => {
-      const prevBoards = { ...prev }; // make a copy
-
-      // in case of paginated result fetch, remove all cached data
-      // that is in a later page than the current page
-      if (pageNum > 0) {
-        for (const boardId in prevBoards) {
-          // check if there is pagination info on the cached data
-          // if so, check page number
-          if (
-            prevBoards[boardId]?.page &&
-            prevBoards[boardId].page >= pageNum
-          ) {
-            prevBoards[boardId] = null;
-          }
-        }
-      }
-
-      const newBoards = {}; // final return value
-
-      // remove all null entries
-      for (const boardId in prevBoards) {
-        if (prevBoards[boardId]) {
-          newBoards[boardId] = prevBoards[boardId];
-        }
-      }
+      const newBoards = { ...prev }; // final return value
 
       // append newly processed boards
-      return { ...prevBoards, ...processedBoards };
+      for (const boardId in processedBoards) {
+        if (newBoards[boardId]) {
+          // only update if the incoming data is newer
+          if (
+            processedBoards[boardId].lastUpdate > newBoards[boardId].lastUpdate
+          ) {
+            // update only the incoming fields
+            if (
+              newBoards[boardId].links?.length >
+              processedBoards[boardId].links?.length
+            ) {
+              // boards/my and boards/share only fetches two links from board
+              // if this is the case, do not overwrite the exisisting data
+              delete processedBoards[boardId].links;
+            }
+            newBoards[boardId] = {
+              ...newBoards[boardId],
+              ...processedBoards[boardId],
+            };
+          }
+        } else {
+          // if it is a new board, add to the data
+          newBoards[boardId] = processedBoards[boardId];
+        }
+      }
+
+      return newBoards;
     });
   };
 
@@ -170,7 +172,25 @@ export default function DataProvider({ children }) {
       }
 
       // append newly processed links
-      return { ...newLinks, ...processedLinks };
+      for (const linkId in processedLinks) {
+        if (newLinks[linkId]) {
+          // if already exist, then
+          // update if the incoming information is newer
+          if (processedLinks[linkId].lastUpdate > newLinks[linkId].lastUpdate) {
+            // only update the newly incoming fields
+            newLinks[linkId] = {
+              ...newLinks[linkId],
+              ...processedLinks[linkId],
+            };
+          }
+          // if not, leave the original untouched
+        } else {
+          // if it doesn't exist, add it to links
+          newLinks[linkId] = processedLinks[linkId];
+        }
+      }
+
+      return newLinks;
     });
   };
 
@@ -236,7 +256,7 @@ export default function DataProvider({ children }) {
 
       // store processed boards and links
       updateBoards(processedBoards);
-      updateLinks(processedLinks, 0, [boardIds]);
+      updateLinks(processedLinks, 0);
     } else if (fetchState.err) {
       // TODO Error handling
       // TODO invalid page (404)
@@ -268,37 +288,38 @@ export default function DataProvider({ children }) {
   const [fetchBoardState, fetchBoard] = useFetch('GET', '/boards/:id/', {
     useCache: true,
   });
+
+  const updateBoard = (boardInfo) => {
+    if (!boardInfo) return;
+    const processedLinks = {};
+    const processedBoards = {};
+    const currentTime = new Date().getTime();
+
+    // process board
+    processedBoards[boardInfo.board_id] = {
+      ...boardInfo,
+      links: boardInfo.links.map((link) => link.link_id),
+      lastUpdate: currentTime,
+    };
+
+    // process boards
+    boardInfo.links.forEach((link) => {
+      processedLinks[link.link_id] = {
+        ...link,
+        lastUpdate: currentTime,
+      };
+    });
+
+    updateBoards(processedBoards);
+    updateLinks(processedLinks, 0, [boardInfo.board_id]);
+  };
+
   useEffect(() => {
-    const { loading, res, err } = fetchBoardState;
-    if (!loading) {
-      if (res) {
-        const boardInfo = res?.data;
-        if (boardInfo) {
-          const processedLinks = {};
-          const processedBoards = {};
-          const currentTime = new Date().getTime();
-
-          // process board
-          processedBoards[boardInfo.board_id] = {
-            ...boardInfo,
-            links: boardInfo.links.map((link) => link.link_id),
-            lastUpdate: currentTime,
-          };
-
-          // process boards
-          boardInfo.links.forEach((link) => {
-            processedLinks[link.link_id] = {
-              ...link,
-              lastUpdate: currentTime,
-            };
-          });
-
-          updateBoards(processedBoards);
-          updateLinks(processedLinks, 0, [boardInfo.board_id]);
-        }
-      } else if (err) {
-      }
-    }
+    const { loading, res } = fetchBoardState;
+    if (loading || !res) return;
+    const boardInfo = res?.data;
+    updateBoard(boardInfo);
+    // eslint-disable-next-line
   }, [fetchBoardState]);
 
   // Fetch Explore links
@@ -404,6 +425,7 @@ export default function DataProvider({ children }) {
     routeModalSize,
     setRouteModalSize,
     getDefaultBoardColor,
+    updateBoard,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

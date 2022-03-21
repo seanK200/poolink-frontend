@@ -26,11 +26,9 @@ export default function useFieldControl({
   initValues,
 } = {}) {
   const [value, setValue] = useState(
-    initValues?.value || defaultInitValues.value
+    initValues?.value === undefined ? defaultInitValues.value : initValues.value
   );
-  const [isValid, setIsValid] = useState(
-    initValues?.isValid || defaultInitValues.isValid
-  );
+  const [isValid, setIsValid] = useState(initValues?.isValid || !required);
   const [doValidate, setDoValidate] = useState(
     initValues?.doValidate || defaultInitValues.doValidate
   );
@@ -86,7 +84,18 @@ export default function useFieldControl({
 
   const handleChangeControl = (e) => {
     if (!doValidate) setDoValidate(true);
-    setValue(e.target.value);
+    let newValue = '';
+    if (typeof e === 'object' && e?.target?.hasOwnProperty('value')) {
+      newValue = e.target.value;
+    } else if (
+      typeof e === 'object' &&
+      e?.target?.hasOwnProperty('innerText')
+    ) {
+      newValue = e.target.innerText;
+    } else {
+      newValue = e;
+    }
+    setValue(newValue);
   };
 
   const handleFocusControl = (e) => {
@@ -97,6 +106,11 @@ export default function useFieldControl({
     setFocus(false);
     if (!doValidate) setDoValidate(true);
   };
+
+  useEffect(() => {
+    if (doValidate) validateField();
+    // eslint-disable-next-line
+  }, []);
 
   useEffect(() => {
     validateField();
@@ -120,6 +134,7 @@ export default function useFieldControl({
     required,
     focused,
     inputRef,
+    initValues,
   };
 
   return [value, isValid, control];
