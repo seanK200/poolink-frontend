@@ -62,7 +62,10 @@ function App() {
             path="board/new"
             element={<Navigate to="/" replace={true} />}
           />
-          <Route path="link/:linkId" element={<LinkRoute />} />
+          <Route
+            path="link/:linkId"
+            element={<Navigate to="/" replace={true} />}
+          />
           <Route path="link/new" element={<Navigate to="/" replace={true} />} />
         </Route>
         <Route path="login" element={<LoginRoute />} />
@@ -91,6 +94,7 @@ function App() {
             path="link/new"
             element={<AddLinkRoute isRouteModalOpen />}
           ></Route>
+          <Route path="link/:linkId" element={<LinkRoute />} />
           <Route
             path="board/new"
             element={<AddBoardRoute isRouteModalOpen />}

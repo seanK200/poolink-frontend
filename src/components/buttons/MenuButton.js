@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from './Button';
 
-export default function MenuButton() {
+export default function MenuButton(props) {
   return (
     <Button
       icon={
@@ -15,6 +15,7 @@ export default function MenuButton() {
         height: '25px',
         fontSize: '1.1rem',
       }}
+      {...props}
     />
   );
 }

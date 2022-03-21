@@ -38,6 +38,9 @@ export const ADD_LINK_URL_MESSAGE = {
 export const BOARD_DELETE_WARNING =
   '현재 보드와 보드에 저장된 모든 링크를 삭제하시겠습니까?';
 
+// Links
+export const LINK_DELETE_WARNING = '선택한 링크를 삭제하시겠습니까?';
+
 // Emoji Picker
 export const emojiPlaceholder = '이모티콘 검색';
 

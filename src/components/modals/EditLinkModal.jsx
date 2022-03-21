@@ -51,7 +51,7 @@ export default function EditLinkModal({
   });
   const [linkBoard, linkBoardIsValid, linkBoardField] = useFieldControl({
     initValues: {
-      value: initialLinkInfo?.board ? boards[initialLinkInfo.board] : null,
+      value: initialLinkInfo?.board ? boards[initialLinkInfo.board] : '',
       doValidate: initialLinkInfo?.board ? true : false,
     },
   });

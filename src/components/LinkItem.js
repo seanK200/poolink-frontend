@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import CopyButton from './buttons/CopyButton';
 import MenuButton from './buttons/MenuButton';
+import FloatingMenu from './FloatingMenu';
+import FloatingMenuItem from './FloatingMenuItem';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { LINK_DELETE_WARNING } from '../consts/strings';
 
 export function getDomainName(url, truncateLength = 50) {
   let domainName = url;
@@ -14,27 +19,93 @@ export function getDomainName(url, truncateLength = 50) {
   return domainName;
 }
 
-export default function LinkItem({ linkInfo }) {
+export default function LinkItem({ linkInfo, deleteLinkState, deleteLink }) {
+  const [isMenuVisible, setMenuVisible] = useState(false);
+
+  let navigate = useNavigate();
+  let location = useLocation();
+
+  const handleLinkEdit = () => {
+    navigate(`/link/${linkInfo.link_id}`, {
+      state: { backgroundLocation: location },
+    });
+  };
+
+  // Delete link API
+  const handleLinkDelete = () => {
+    if (window.confirm(LINK_DELETE_WARNING)) {
+      deleteLink({ params: { id: linkInfo.link_id } });
+    }
+  };
+
+  if (!linkInfo) return null;
+
   return (
-    <Container>
-      <LinkMetaImage metaImageSrc={linkInfo.meta_image} />
-      <LinkInfoContainer>
-        <LinkNameAndButtonContainer>
-          <LinkName>{linkInfo.label}</LinkName>
-          <ButtonContainer>
-            <CopyButton />
-            <MenuButton />
-          </ButtonContainer>
-        </LinkNameAndButtonContainer>
-        <LinkMemo className="no-scrollbar" memo={linkInfo.memo}>
-          {linkInfo.memo}
-        </LinkMemo>
-        <LinkUrlContainer>
-          <Favicon faviconSrc={linkInfo.favicon} />
-          <LinkUrl>{getDomainName(linkInfo.url)}</LinkUrl>
-        </LinkUrlContainer>
-      </LinkInfoContainer>
-    </Container>
+    <React.Fragment>
+      <Container
+        isMenuVisible={isMenuVisible}
+        isDeleting={deleteLinkState.loading}
+      >
+        <LinkMetaImage metaImageSrc={linkInfo.meta_image} />
+        <LinkInfoContainer>
+          <LinkNameAndButtonContainer>
+            <LinkName>{linkInfo.label}</LinkName>
+            <ButtonContainer>
+              <CopyButton text={linkInfo.url} />
+              <MenuButton
+                onClick={() => {
+                  setMenuVisible((prev) => !prev);
+                }}
+              />
+            </ButtonContainer>
+            {isMenuVisible && (
+              <FloatingMenu
+                style={{ right: '0px' }}
+                onClick={() => {
+                  setMenuVisible(false);
+                }}
+              >
+                <FloatingMenuItem
+                  label="수정"
+                  imgSrc="/assets/EditIcon.png"
+                  onClick={handleLinkEdit}
+                />
+                <CopyToClipboard text={linkInfo.url}>
+                  <FloatingMenuItem
+                    label="링크 복사"
+                    imgSrc="/assets/CopyButton.png"
+                  />
+                </CopyToClipboard>
+                <FloatingMenuItem
+                  label="삭제"
+                  imgSrc="/assets/DeleteIcon.png"
+                  onClick={handleLinkDelete}
+                />
+              </FloatingMenu>
+            )}
+            <FloatingMenuOverlay
+              onClick={() => {
+                setMenuVisible(false);
+              }}
+              visible={isMenuVisible}
+            />
+          </LinkNameAndButtonContainer>
+          <LinkMemo className="no-scrollbar" memo={linkInfo.memo}>
+            {linkInfo.memo}
+          </LinkMemo>
+          <LinkUrlContainer>
+            <Favicon faviconSrc={linkInfo.favicon} />
+            <LinkUrl>{getDomainName(linkInfo.url)}</LinkUrl>
+          </LinkUrlContainer>
+        </LinkInfoContainer>
+      </Container>
+      <FloatingMenuOverlay
+        onClick={() => {
+          setMenuVisible(false);
+        }}
+        visible={isMenuVisible}
+      />
+    </React.Fragment>
   );
 }
 
@@ -46,6 +117,9 @@ const Container = styled.div`
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: ${({ isMenuVisible }) => (isMenuVisible ? '2' : '0')};
+  opacity: ${({ isDeleting }) => (isDeleting ? '0.2' : '1')};
 `;
 
 const LinkMetaImage = styled.div`
@@ -70,6 +144,7 @@ const LinkInfoContainer = styled.div`
 `;
 
 const LinkNameAndButtonContainer = styled.div`
+  position: relative;
   width: 100%;
   height: 26px;
   display: flex;
@@ -136,4 +211,14 @@ const LinkUrl = styled.div`
   line-height: 1.1rem;
   color: var(--color-g6);
   overflow-y: hidden;
+`;
+
+const FloatingMenuOverlay = styled.div`
+  display: ${({ visible }) => (visible ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
 `;
