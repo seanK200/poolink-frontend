@@ -315,10 +315,11 @@ export default function DataProvider({ children }) {
   };
 
   useEffect(() => {
-    const { loading, res, err } = fetchBoardState;
+    const { loading, res } = fetchBoardState;
     if (loading || !res) return;
     const boardInfo = res?.data;
     updateBoard(boardInfo);
+    // eslint-disable-next-line
   }, [fetchBoardState]);
 
   // Fetch Explore links
