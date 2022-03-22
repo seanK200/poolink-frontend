@@ -12,7 +12,8 @@ import useFetch from '../../../hooks/useFetch';
 
 export default function BoardRoute() {
   const { userProfile } = useAuth();
-  const { boards, links, fetchBoard } = useData();
+  const { boards, links, fetchBoard, hideLinkImage, setHideLinkImage } =
+    useData();
   const { boardId } = useParams();
   let navigate = useNavigate();
   let location = useLocation();
@@ -36,6 +37,12 @@ export default function BoardRoute() {
     if (deleteBoardState.loading) return;
     if (!window.confirm(BOARD_DELETE_WARNING)) return;
     deleteBoard({ params: { id: boardId } });
+  };
+
+  const handleViewModeClick = () => {
+    // 버튼 이미지 바꾸기
+
+    setHideLinkImage((prev) => !prev);
   };
 
   useEffect(() => {
@@ -156,10 +163,14 @@ export default function BoardRoute() {
               className="minimal"
               icon={
                 <img
-                  src={process.env.PUBLIC_URL + '/assets/GridIcon.png'}
+                  src={
+                    process.env.PUBLIC_URL +
+                    `/assets/${hideLinkImage ? 'Grid' : 'List'}Icon.png`
+                  }
                   alt="ChangeViewMode"
                 />
               }
+              onClick={handleViewModeClick}
             ></Button>
           </SelectAndViewModeContainer>
         </ToolBar>

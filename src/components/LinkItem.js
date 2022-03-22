@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import CopyButton from './buttons/CopyButton';
 import MenuButton from './buttons/MenuButton';
+import { useData } from '../contexts/DataProvider';
 
 export function getDomainName(url, truncateLength = 50) {
   let domainName = url;
@@ -15,9 +16,11 @@ export function getDomainName(url, truncateLength = 50) {
 }
 
 export default function LinkItem({ linkInfo }) {
+  const { hideLinkImage } = useData();
+
   return (
     <Container>
-      <LinkMetaImage metaImageSrc={linkInfo.meta_image} />
+      {hideLinkImage || <LinkMetaImage metaImageSrc={linkInfo.meta_image} />}
       <LinkInfoContainer>
         <LinkNameAndButtonContainer>
           <LinkName>{linkInfo.label}</LinkName>

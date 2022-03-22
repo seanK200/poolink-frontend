@@ -66,6 +66,8 @@ export default function DataProvider({ children }) {
     height: window.innerHeight,
   });
 
+  const [hideLinkImage, setHideLinkImage] = useState(false);
+
   const navigate = useNavigate();
 
   const handleWindowResize = throttle(() => {
@@ -426,6 +428,8 @@ export default function DataProvider({ children }) {
     setRouteModalSize,
     getDefaultBoardColor,
     updateBoard,
+    hideLinkImage,
+    setHideLinkImage,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
