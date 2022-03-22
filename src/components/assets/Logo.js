@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function Logo({ ...rest }) {
   const navigate = useNavigate();
