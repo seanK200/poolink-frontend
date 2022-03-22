@@ -40,10 +40,11 @@ const parseInput = (value) => {
   value = value.replace(/^(\s){1,}|(\s){1,}$/g, ''); // trailing whitespaces
   value = value.replace(/["';]/g, '');
 
-  // Array of tags. Unique
+  // Array of tags. Unique. Non-empty
   const tags = value
     .split(' ')
-    .filter((tag, idx, arr) => arr.indexOf(tag) === idx);
+    .filter((tag, idx, arr) => arr.indexOf(tag) === idx)
+    .filter((tag) => tag !== '');
 
   // Return
   return tags;
