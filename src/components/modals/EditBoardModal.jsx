@@ -105,7 +105,7 @@ export default function EditBoardModal({
       data = {
         name: boardName,
         user: userProfile.userId,
-        tags: boardTags.map((tagName) => ({ name: tagName })),
+        tags: boardTags,
       };
       fetcher({ data });
     }

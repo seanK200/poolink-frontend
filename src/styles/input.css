@@ -35,9 +35,10 @@ textarea {
 }
 
 input.minimal {
-  border-width: 0 0 1px 0;
+  border-width: 0;
   border-radius: 0;
   padding: 12px 16px;
+  margin: 0;
 }
 
 input::placeholder,

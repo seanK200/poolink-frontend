@@ -33,18 +33,21 @@ export default function BoardSelect({ control, ...props }) {
     if (createBoardState.loading || !createBoardState.res) return;
     const newBoardId = createBoardState.res?.data?.id;
     if (newBoardId) fetchBoard({ params: { id: newBoardId } });
+    // eslint-disable-next-line
   }, [createBoardState]);
 
   const handleBoardCreate = () => {
+    if (!newBoardNameIsValid) return;
+    if (!window.confirm(`새 보드 '${newBoardName}' 를 만드시겠습니까?`)) return;
     const data = {
-      user: userProfile.userId,
-      category: [0],
       name: newBoardName,
+      user: userProfile.userId,
+      tags: [],
+      bio: '',
+      emoji: null,
     };
     createBoard({ data });
   };
-
-  const handleNewBoardInputKeyDown = (e) => {};
 
   const boardIds = flatten([...myBoardIds, ...sharedBoardIds]).filter(
     (boardId) =>
@@ -68,13 +71,19 @@ export default function BoardSelect({ control, ...props }) {
             padding: '8px 16px 0 16px',
           }}
         >
-          <div style={{ position: 'relative', marginBottom: '4px' }}>
+          <div
+            style={{
+              position: 'relative',
+              marginBottom: '4px',
+              borderBottom: '1px solid var(--color-g7)',
+            }}
+          >
             <SearchIcon
               loading={false}
               stroke="var(--color-g3)"
               style={{
                 position: 'absolute',
-                top: 'calc(50% - 1px)',
+                top: '50%',
                 left: '8px',
                 transform: 'translateY(-50%)',
               }}
@@ -83,7 +92,7 @@ export default function BoardSelect({ control, ...props }) {
               type="text"
               className="minimal"
               placeholder="보드 검색"
-              style={{ paddingLeft: '36px', borderColor: 'var(--color-g7)' }}
+              style={{ paddingLeft: '36px', paddingBottom: '16px' }}
               value={searchInputValue}
               onChange={(e) => setSearchInputValue(e.target.value)}
             />
@@ -126,12 +135,12 @@ export default function BoardSelect({ control, ...props }) {
                 control={newBoardNameField}
                 placeholder="새 보드 이름"
                 hideMessage
-                onKeyDown={handleNewBoardInputKeyDown}
               />
               <Button
                 className="primary small"
                 style={{ flexShrink: '0' }}
                 disabled={!newBoardNameIsValid}
+                onClick={handleBoardCreate}
               >
                 만들기
               </Button>
@@ -169,4 +178,5 @@ const NoBoards = styled.div`
 const CreateBoard = styled.div`
   width: 100%;
   border-top: 1px solid var(--color-g7);
+  padding: 4px 0;
 `;

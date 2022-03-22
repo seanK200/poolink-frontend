@@ -129,8 +129,6 @@ export function useManualFetch(method, url, options = null) {
       if (deepEquals(currentArgs, fetchStateArgs)) {
         // console.log(`useFetch(${method}, ${url}): Prevent excessive retry.`);
         return;
-      } else {
-        console.log({ currentArgs, fetchStateArgs });
       }
     }
     try {

@@ -23,6 +23,7 @@ export default function FormField({
   hideMessage,
   customSelect,
   displayValue: displayValueProp,
+  className: classNameProp,
   ...props
 }) {
   const {
@@ -86,6 +87,16 @@ export default function FormField({
     if (doValidate && !isValid) inputClassName += ' invalid';
     if (focused) inputClassName += ' focus';
     if (disabled) inputClassName += ' disabled';
+    if (classNameProp) inputClassName += ' ' + classNameProp;
+    return inputClassName;
+  };
+
+  const getInputClassName = () => {
+    let inputClassName = !doValidate || isValid ? '' : 'invalid';
+    if (classNameProp) {
+      if (inputClassName) inputClassName += ' ';
+      inputClassName += classNameProp;
+    }
     return inputClassName;
   };
 
@@ -93,7 +104,7 @@ export default function FormField({
     if (type === 'textarea') {
       return (
         <textarea
-          className={!doValidate || isValid ? '' : 'invalid'}
+          className={getInputClassName()}
           placeholder={placeholder}
           value={displayValue}
           onChange={handleChange}
@@ -193,7 +204,7 @@ export default function FormField({
     return (
       <input
         type={type}
-        className={!doValidate || isValid ? '' : 'invalid'}
+        className={getInputClassName()}
         placeholder={placeholder}
         value={displayValue}
         onChange={handleChange}
@@ -207,7 +218,7 @@ export default function FormField({
   };
 
   return (
-    <div className={`input-group`}>
+    <div className={`input-group ${classNameProp || ''}`}>
       {(labelText || labelImgSrc) && (
         <label htmlFor={id} className={!doValidate || isValid ? '' : 'invalid'}>
           {labelImgSrc && (

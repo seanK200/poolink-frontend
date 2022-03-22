@@ -10,19 +10,12 @@ export default function BoardsSharedRoute() {
     sharedBoardsPaginationInfo,
     fetchSharedBoardsState,
     fetchSharedBoards,
-    deleteBoardState,
   } = useData();
 
   useEffect(() => {
     fetchSharedBoards({ query: { page: 1, shared: true }, useCache: true }); // boards/my에 get api 요청 보내고 res 받는 함수
     // eslint-disable-next-line
   }, []); // 중괄호 지랄 난거는 객체형태의 query를 객체형태의 인자로 싼거임!
-
-  useEffect(() => {
-    if (deleteBoardState.loading || !deleteBoardState.res) return;
-    fetchSharedBoards({ query: { page: 1, shared: true }, useCache: false });
-    // eslint-disable-next-line
-  }, [deleteBoardState]);
 
   if (fetchSharedBoardsState.loading) {
     return <div>Loading...</div>;

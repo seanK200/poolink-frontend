@@ -3,6 +3,7 @@ import { throttle } from 'lodash';
 import useFetch from '../hooks/useFetch';
 import { DATA_LOSS_WARNING, MODAL_CLOSE_MESSAGE } from '../consts/strings';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthProvider';
 
 const DataContext = React.createContext();
 
@@ -29,6 +30,8 @@ export function parseUrlQuery(url) {
 }
 
 export default function DataProvider({ children }) {
+  const { userProfile } = useAuth();
+
   // data from servers
   const [boards, setBoards] = useState({});
   const [links, setLinks] = useState({});
@@ -196,74 +199,107 @@ export default function DataProvider({ children }) {
     });
   };
 
-  const handleBoardsFetch = useCallback((fetchState, shared = false) => {
-    if (!fetchState.loading && fetchState.res?.data) {
-      // store pagination info
-      const current = fetchState.fetchArgs.query?.page;
-      const { count, next, previous, results } = fetchState.res.data;
+  const handleBoardsFetch = useCallback(
+    (fetchState, shared = false, clearBefore = false) => {
+      if (!fetchState.loading && fetchState.res?.data) {
+        // store pagination info
+        const current = fetchState.fetchArgs.query?.page;
+        const { count, next, previous, results } = fetchState.res.data;
 
-      const newPaginationInfo = { count, previous, current, next };
+        const newPaginationInfo = { count, previous, current, next };
 
-      // process boards and links
-      const currentTime = new Date().getTime();
-      const processedBoards = {};
-      const processedLinks = {};
-      const boardIds = []; // store board ids in myBoardIds
+        // process boards and links
+        const currentTime = new Date().getTime();
+        const processedBoards = {};
+        const processedLinks = {};
+        const boardIds = []; // store board ids in myBoardIds
 
-      // process the boards
-      if (results) {
-        results.forEach((board) => {
-          processedBoards[board.board_id] = {
-            ...board,
-            links: board.links.map((link) => link.link_id), // store only link IDs
-            page: current, // store pagination information,
-            lastUpdate: currentTime, // (cache) last fetched time
-          };
-
-          board.links.forEach((link) => {
-            processedLinks[link.link_id] = {
-              ...link,
-              lastUpdate: currentTime,
+        // process the boards
+        if (results) {
+          results.forEach((board) => {
+            processedBoards[board.board_id] = {
+              ...board,
+              links: board.links.map((link) => link.link_id), // store only link IDs
+              page: current, // store pagination information,
+              lastUpdate: currentTime, // (cache) last fetched time
             };
+
+            board.links.forEach((link) => {
+              processedLinks[link.link_id] = {
+                ...link,
+                lastUpdate: currentTime,
+              };
+            });
+
+            boardIds.push(board.board_id);
           });
-
-          boardIds.push(board.board_id);
-        });
-      }
-
-      const setBoardIds = (prev) => {
-        // discard all pages later than the current one loading
-        // in case of out of order page fetch, check length of boardIds first
-        const newBoardIds = prev.slice(
-          0,
-          current <= prev.length ? current : prev.length
-        );
-
-        // make sure that newBoardIds[current - 1] exists
-        while (newBoardIds.length < current) {
-          newBoardIds.push([]);
         }
 
-        // append the board IDs
-        newBoardIds[current - 1] = boardIds;
-        return newBoardIds;
-      };
-      if (!shared) {
-        setMyBoardsPaginationInfo(newPaginationInfo);
-        setMyBoardIds(setBoardIds);
-      } else {
-        setSharedBoardsPaginationInfo(newPaginationInfo);
-        setSharedBoardIds(setBoardIds);
-      }
+        const setBoardIds = (prev) => {
+          // discard all pages later than the current one loading
+          // in case of out of order page fetch, check length of boardIds first
+          const newBoardIds = prev.slice(
+            0,
+            clearBefore && current <= prev.length ? current : prev.length
+          );
 
-      // store processed boards and links
-      updateBoards(processedBoards);
-      updateLinks(processedLinks, 0);
-    } else if (fetchState.err) {
-      // TODO Error handling
-      // TODO invalid page (404)
-    }
-  }, []);
+          // make sure that newBoardIds[current - 1] exists
+          while (newBoardIds.length < current) {
+            newBoardIds.push([]);
+          }
+
+          // append the board IDs
+          newBoardIds[current - 1] = boardIds;
+          return newBoardIds;
+        };
+
+        if (!shared) {
+          if (newPaginationInfo.current >= myBoardsPaginationInfo.current)
+            setMyBoardsPaginationInfo(newPaginationInfo);
+          setMyBoardIds(setBoardIds);
+        } else {
+          if (newPaginationInfo.current >= sharedBoardsPaginationInfo.current)
+            setSharedBoardsPaginationInfo(newPaginationInfo);
+          setSharedBoardIds(setBoardIds);
+        }
+
+        // store processed boards and links
+        updateBoards(processedBoards);
+        updateLinks(processedLinks, 0);
+      } else if (fetchState.err) {
+        // TODO Error handling
+        // TODO invalid page (404)
+        if (fetchState.err?.response?.status === 404) {
+          if (!shared) {
+            if (myBoardsPaginationInfo.current > 0) {
+              setMyBoardsPaginationInfo((prev) => {
+                return {
+                  ...prev,
+                  previous: null,
+                  current: prev.current - 1,
+                  next: null,
+                };
+              });
+              setMyBoardIds((prev) => prev.slice(0, prev.length - 1));
+            }
+          } else {
+            if (sharedBoardsPaginationInfo.current > 0) {
+              setSharedBoardsPaginationInfo((prev) => {
+                return {
+                  ...prev,
+                  previous: null,
+                  current: prev.current - 1,
+                  next: null,
+                };
+              });
+              setSharedBoardIds((prev) => prev.slice(0, prev.length - 1));
+            }
+          }
+        } // handle response code 404
+      }
+    },
+    [myBoardsPaginationInfo, sharedBoardsPaginationInfo]
+  );
 
   // FETCHERS
   // FETCHER: My boards
@@ -272,7 +308,8 @@ export default function DataProvider({ children }) {
   });
   useEffect(() => {
     handleBoardsFetch(fetchMyBoardsState, false);
-  }, [fetchMyBoardsState, handleBoardsFetch]);
+    // eslint-disable-next-line
+  }, [fetchMyBoardsState]);
 
   // FETCHER: Shared boards
   const [fetchSharedBoardsState, fetchSharedBoards] = useFetch(
@@ -284,7 +321,30 @@ export default function DataProvider({ children }) {
   );
   useEffect(() => {
     handleBoardsFetch(fetchSharedBoardsState, true);
-  }, [fetchSharedBoardsState, handleBoardsFetch]);
+    // eslint-disable-next-line
+  }, [fetchSharedBoardsState]);
+
+  const fetchMyBoardsRange = (pageStart, pageEnd = -1) => {
+    if (pageEnd < 0) {
+      pageEnd = pageStart;
+      pageStart = 1;
+    }
+
+    for (let i = pageStart; i <= pageEnd; i++) {
+      fetchMyBoards({ query: { page: i }, useCache: false });
+    }
+  };
+
+  const fetchSharedBoardsRange = (pageStart, pageEnd = -1) => {
+    if (pageEnd < 0) {
+      pageEnd = pageStart;
+      pageStart = 1;
+    }
+
+    for (let i = pageStart; i <= pageEnd; i++) {
+      fetchSharedBoards({ query: { page: i }, useCache: false });
+    }
+  };
 
   // fetch individual board
   const [fetchBoardState, fetchBoard] = useFetch('GET', '/boards/:id/', {
@@ -407,6 +467,35 @@ export default function DataProvider({ children }) {
 
   const [editBoardState, editBoard] = useFetch('PATCH', '/boards/:id/');
   const [deleteBoardState, deleteBoard] = useFetch('DELETE', '/boards/:id/');
+  useEffect(() => {
+    if (deleteBoardState.loading || !deleteBoardState.res) return;
+    // Deleted board info
+    const deletedBoardInfo = boards[deleteBoardState.fetchArgs.params.id];
+    // is this a shared board?
+    const shared = deletedBoardInfo.user !== userProfile.userId;
+    // reload from deleted board's page ~ current page
+    let deletedBoardPage = 1;
+    if (!shared) {
+      for (let i = 0; i < myBoardIds.length; i++) {
+        if (myBoardIds[i].indexOf(deletedBoardInfo.board_id) >= 0) {
+          deletedBoardPage = i + 1;
+          break;
+        }
+      }
+      fetchMyBoardsRange(deletedBoardPage, myBoardsPaginationInfo.current);
+    } else {
+      for (let i = 0; i < sharedBoardIds.length; i++) {
+        if (sharedBoardIds[i].indexOf(deletedBoardInfo.board_id) >= 0) {
+          deletedBoardPage = i + 1;
+          break;
+        }
+      }
+      fetchSharedBoardsRange(
+        deletedBoardPage,
+        sharedBoardsPaginationInfo.current
+      );
+    }
+  }, [deleteBoardState]);
 
   const [deleteLinkState, deleteLink] = useFetch('DELETE', '/links/:id/');
 
@@ -441,6 +530,8 @@ export default function DataProvider({ children }) {
     deleteBoard,
     deleteLinkState,
     deleteLink,
+    fetchMyBoardsRange,
+    fetchSharedBoardsRange,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
