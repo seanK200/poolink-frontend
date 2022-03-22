@@ -190,7 +190,7 @@ export function useManualFetch(method, url, options = null) {
               // if so, use it!
               isCacheValid = true;
               cachedRes = res;
-              console.log('Cache hit');
+              // console.log('Cache hit');
             } else {
               // stale cash. mark for deletion
               staleCacheIdx.push(idx);

@@ -8,12 +8,21 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthProvider';
 import Emoji from '../../../components/utilites/Emoji';
 import { BOARD_DELETE_WARNING } from '../../../consts/strings';
-import useFetch from '../../../hooks/useFetch';
 
 export default function BoardRoute() {
   const { userProfile } = useAuth();
-  const { boards, links, fetchBoard, hideLinkImage, setHideLinkImage } =
-    useData();
+  const {
+    boards,
+    links,
+    fetchBoard,
+    hideLinkImage,
+    setHideLinkImage,
+    deleteBoardState,
+    deleteBoard,
+    deleteLinkState,
+    deleteLink,
+  } = useData();
+
   const { boardId } = useParams();
   let navigate = useNavigate();
   let location = useLocation();
@@ -30,8 +39,7 @@ export default function BoardRoute() {
     navigate('edit', { state: { backgroundLocation: location } });
   };
 
-  const [deleteBoardState, deleteBoard] = useFetch('DELETE', '/boards/:id/');
-
+  // DELETE BOARD
   const handleBoardDelete = (e) => {
     if (!isMyBoard) return;
     if (deleteBoardState.loading) return;
@@ -52,10 +60,17 @@ export default function BoardRoute() {
     } else if (deleteBoardState.res) {
       navigate('/');
     }
-
     // eslint-disable-next-line
   }, [deleteBoardState]);
 
+  // DELETE LINK
+  useEffect(() => {
+    if (deleteLinkState.loading || !deleteLinkState.res) return;
+    fetchBoard({ params: { id: boardId }, useCache: false });
+    // eslint-disable-next-line
+  }, [deleteLinkState]);
+
+  // RENDER
   if (boardInfo === null) {
     // TODO Loading screen
     return null;
@@ -176,7 +191,12 @@ export default function BoardRoute() {
         </ToolBar>
         <LinkContainer>
           {boardInfo.links.map((linkId) => (
-            <LinkItem linkInfo={links[linkId]} key={linkId} />
+            <LinkItem
+              linkInfo={links[linkId]}
+              key={linkId}
+              deleteLinkState={deleteLinkState}
+              deleteLink={deleteLink}
+            />
           ))}
         </LinkContainer>
       </div>

@@ -1,89 +1,188 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useData } from '../contexts/DataProvider';
 import { useAuth } from '../contexts/AuthProvider';
 import Button from './buttons/Button';
 import styled from 'styled-components';
 import ScrapButton from './buttons/ScrapButton';
 import MenuButton from './buttons/MenuButton';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import FloatingMenu from './FloatingMenu';
+import FloatingMenuItem from './FloatingMenuItem';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { BOARD_DELETE_WARNING } from '../consts/strings';
 
 export default function BoardItem({ boardInfo }) {
   const { userProfile } = useAuth();
-  const { links } = useData();
+  const { links, deleteBoard, editBoardState, editBoard, updateBoard } =
+    useData();
   const navigate = useNavigate();
+  let location = useLocation();
+
+  const [isMenuVisible, setMenuVisible] = useState(false);
+
+  // board edit
+  const handleBoardEdit = () => {
+    navigate(`/board/${boardInfo.board_id}/edit`, {
+      state: { backgroundLocation: location },
+    });
+  };
+
+  // copy link
+  const getBoardLink = (boardId) => {
+    return (
+      window.location.protocol +
+      '//' +
+      window.location.host +
+      '/board/' +
+      boardId
+    );
+  };
+
+  // delete board
+  const handleDeleteBoard = () => {
+    if (!window.confirm(BOARD_DELETE_WARNING)) return;
+    deleteBoard({ params: { id: boardInfo.board_id } });
+  };
+
+  // Favorite
+  const handleFavoriteToggle = (e) => {
+    e.stopPropagation();
+    if (editBoardState.loading) return;
+    const data = {
+      is_bookmarked: !boardInfo.is_bookmarked,
+    };
+    editBoard({ params: { id: boardInfo.board_id }, data });
+  };
+
+  useEffect(() => {
+    if (editBoardState.loading || !editBoardState.res) return;
+    const updatedBoardInfo = editBoardState.res.data;
+    updateBoard(updatedBoardInfo);
+    // eslint-disable-next-line
+  }, [editBoardState]);
+
+  const boardFloatingMenu = (
+    <FloatingMenu
+      onClick={() => {
+        setMenuVisible(false);
+      }}
+      style={{
+        right: '0px',
+      }}
+    >
+      <FloatingMenuItem
+        label="수정"
+        imgSrc="/assets/EditIcon.png"
+        onClick={handleBoardEdit}
+      />
+      <CopyToClipboard text={getBoardLink(boardInfo.board_id)}>
+        <FloatingMenuItem label="링크 복사" imgSrc="/assets/CopyButton.png" />
+      </CopyToClipboard>
+      <FloatingMenuItem
+        label="보드 삭제"
+        imgSrc="/assets/DeleteIcon.png"
+        onClick={handleDeleteBoard}
+      />
+    </FloatingMenu>
+  );
 
   return (
-    <BoardItemContainer
-      onClick={() => navigate(`/board/${boardInfo.board_id}`)}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-        }}
+    <React.Fragment>
+      <BoardItemContainer
+        onClick={() => navigate(`/board/${boardInfo.board_id}`)}
+        isMenuVisible={isMenuVisible}
       >
-        <BoardName className="no-scrollbar">{boardInfo.name}</BoardName>
-        <ButtonContainer>
-          {boardInfo.user !== userProfile.userId && <ScrapButton />}
-          <MenuButton />
-        </ButtonContainer>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <LinkContainer key={0}>
-            <Favicon
-              faviconSrc={
-                boardInfo.links.length >= 1
-                  ? links[boardInfo.links[0]].favicon
-                  : ''
-              }
-            />
-            <LinkLabel>
-              {boardInfo.links.length >= 1
-                ? links[boardInfo.links[0]].label
-                : ''}
-            </LinkLabel>
-          </LinkContainer>
-          <LinkContainer key={1}>
-            <Favicon
-              faviconSrc={
-                boardInfo.links.length >= 2
-                  ? links[boardInfo.links[1]].favicon
-                  : ''
-              }
-            />
-            <LinkLabel>
-              {boardInfo.links.length >= 2
-                ? links[boardInfo.links[1]].label
-                : ''}
-            </LinkLabel>
-          </LinkContainer>
-        </div>
-        <Button
-          icon={
-            <img
-              src={
-                process.env.PUBLIC_URL +
-                `/assets/FavoritesIcon${
-                  boardInfo.is_bookmarked ? '' : 'Disabled'
-                }.png`
-              }
-              alt="Favorites"
-            />
-          }
+        <div
           style={{
-            width: '25px',
-            fontSize: '1.3rem',
+            display: 'flex',
+            alignItems: 'flex-start',
           }}
-        />
-      </div>
-    </BoardItemContainer>
+        >
+          <BoardName className="no-scrollbar">{boardInfo.name}</BoardName>
+          <ButtonContainer
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
+            {boardInfo.user !== userProfile.userId && <ScrapButton />}
+            <MenuButton
+              onClick={() => {
+                setMenuVisible((prev) => !prev);
+              }}
+            />
+            {isMenuVisible && boardFloatingMenu}
+            <FloatingMenuOverlay
+              onClick={() => {
+                setMenuVisible(false);
+              }}
+              visible={isMenuVisible}
+            />
+          </ButtonContainer>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <LinkContainer key={0}>
+              <Favicon
+                faviconSrc={
+                  boardInfo.links.length >= 1
+                    ? links[boardInfo.links[0]].favicon
+                    : ''
+                }
+              />
+              <LinkLabel>
+                {boardInfo.links.length >= 1
+                  ? links[boardInfo.links[0]].label
+                  : ''}
+              </LinkLabel>
+            </LinkContainer>
+            <LinkContainer key={1}>
+              <Favicon
+                faviconSrc={
+                  boardInfo.links.length >= 2
+                    ? links[boardInfo.links[1]].favicon
+                    : ''
+                }
+              />
+              <LinkLabel>
+                {boardInfo.links.length >= 2
+                  ? links[boardInfo.links[1]].label
+                  : ''}
+              </LinkLabel>
+            </LinkContainer>
+          </div>
+          <Button
+            icon={
+              <img
+                src={
+                  process.env.PUBLIC_URL +
+                  `/assets/FavoritesIcon${
+                    boardInfo.is_bookmarked ? '' : 'Disabled'
+                  }.png`
+                }
+                alt="Favorites"
+              />
+            }
+            style={{
+              width: '25px',
+              fontSize: '1.3rem',
+            }}
+            onClick={handleFavoriteToggle}
+          />
+        </div>
+      </BoardItemContainer>
+      <FloatingMenuOverlay
+        onClick={() => {
+          setMenuVisible(false);
+        }}
+        visible={isMenuVisible}
+      />
+    </React.Fragment>
   );
 }
 
@@ -99,6 +198,7 @@ const BoardItemContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   cursor: pointer;
+  z-index: ${({ isMenuVisible }) => (isMenuVisible ? '2' : '0')};
 `;
 
 const BoardName = styled.div`
@@ -139,4 +239,14 @@ const Favicon = styled.div`
 const LinkLabel = styled.div`
   font-size: 0.875rem;
   color: var(--color-g5);
+`;
+
+const FloatingMenuOverlay = styled.div`
+  display: ${({ visible }) => (visible ? 'block' : 'none')};
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
 `;
