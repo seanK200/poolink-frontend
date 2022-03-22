@@ -38,6 +38,29 @@ export default function LinkItem({ linkInfo, deleteLinkState, deleteLink }) {
     }
   };
 
+  const linkFloatingMenu = (
+    <FloatingMenu
+      style={{ right: '0px' }}
+      onClick={() => {
+        setMenuVisible(false);
+      }}
+    >
+      <FloatingMenuItem
+        label="수정"
+        imgSrc="/assets/EditIcon.png"
+        onClick={handleLinkEdit}
+      />
+      <CopyToClipboard text={linkInfo.url}>
+        <FloatingMenuItem label="링크 복사" imgSrc="/assets/CopyButton.png" />
+      </CopyToClipboard>
+      <FloatingMenuItem
+        label="링크 삭제"
+        imgSrc="/assets/DeleteIcon.png"
+        onClick={handleLinkDelete}
+      />
+    </FloatingMenu>
+  );
+
   if (!linkInfo) return null;
 
   return (
@@ -58,31 +81,7 @@ export default function LinkItem({ linkInfo, deleteLinkState, deleteLink }) {
                 }}
               />
             </ButtonContainer>
-            {isMenuVisible && (
-              <FloatingMenu
-                style={{ right: '0px' }}
-                onClick={() => {
-                  setMenuVisible(false);
-                }}
-              >
-                <FloatingMenuItem
-                  label="수정"
-                  imgSrc="/assets/EditIcon.png"
-                  onClick={handleLinkEdit}
-                />
-                <CopyToClipboard text={linkInfo.url}>
-                  <FloatingMenuItem
-                    label="링크 복사"
-                    imgSrc="/assets/CopyButton.png"
-                  />
-                </CopyToClipboard>
-                <FloatingMenuItem
-                  label="삭제"
-                  imgSrc="/assets/DeleteIcon.png"
-                  onClick={handleLinkDelete}
-                />
-              </FloatingMenu>
-            )}
+            {isMenuVisible && linkFloatingMenu}
             <FloatingMenuOverlay
               onClick={() => {
                 setMenuVisible(false);

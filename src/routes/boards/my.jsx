@@ -11,12 +11,19 @@ export default function BoardsMyRoute() {
     myBoardsPaginationInfo,
     fetchMyBoardsState,
     fetchMyBoards,
+    deleteBoardState,
   } = useData();
 
   useEffect(() => {
     fetchMyBoards({ query: { page: 1 }, useCache: true }); // boards/my에 get api 요청 보내고 res 받는 함수
     // eslint-disable-next-line
   }, []); // 중괄호 지랄 난거는 객체형태의 query를 객체형태의 인자로 싼거임!
+
+  useEffect(() => {
+    if (deleteBoardState.loading || !deleteBoardState.res) return;
+    fetchMyBoards({ query: { page: 1 }, useCache: false });
+    // eslint-disable-next-line
+  }, [deleteBoardState]);
 
   if (fetchMyBoardsState.loading) {
     return <div>Loading...</div>;
@@ -26,11 +33,11 @@ export default function BoardsMyRoute() {
     <Container>
       <BoardContainer>
         {myBoardIds.length > 0 &&
-          myBoardIds[myBoardsPaginationInfo.current - 1].map((boardId, idx) => {
+          myBoardIds[myBoardsPaginationInfo.current - 1].map((boardId) => {
             if (boards[boardId]) {
-              return <BoardItem boardInfo={boards[boardId]} key={idx} />;
+              return <BoardItem boardInfo={boards[boardId]} key={boardId} />;
             } else {
-              return <div key={idx}>Loading...</div>;
+              return <div key={boardId}>Loading...</div>;
             }
           })}
       </BoardContainer>

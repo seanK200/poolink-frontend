@@ -8,11 +8,18 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthProvider';
 import Emoji from '../../../components/utilites/Emoji';
 import { BOARD_DELETE_WARNING } from '../../../consts/strings';
-import useFetch from '../../../hooks/useFetch';
 
 export default function BoardRoute() {
   const { userProfile } = useAuth();
-  const { boards, links, fetchBoard } = useData();
+  const {
+    boards,
+    links,
+    fetchBoard,
+    deleteBoardState,
+    deleteBoard,
+    deleteLinkState,
+    deleteLink,
+  } = useData();
   const { boardId } = useParams();
   let navigate = useNavigate();
   let location = useLocation();
@@ -30,8 +37,6 @@ export default function BoardRoute() {
   };
 
   // DELETE BOARD
-  const [deleteBoardState, deleteBoard] = useFetch('DELETE', '/boards/:id/');
-
   const handleBoardDelete = (e) => {
     if (!isMyBoard) return;
     if (deleteBoardState.loading) return;
@@ -50,7 +55,6 @@ export default function BoardRoute() {
   }, [deleteBoardState]);
 
   // DELETE LINK
-  const [deleteLinkState, deleteLink] = useFetch('DELETE', '/links/:id/');
   useEffect(() => {
     if (deleteLinkState.loading || !deleteLinkState.res) return;
     fetchBoard({ params: { id: boardId }, useCache: false });
