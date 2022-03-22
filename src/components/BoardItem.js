@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useData } from '../contexts/DataProvider';
 import { useAuth } from '../contexts/AuthProvider';
 import Button from './buttons/Button';
@@ -13,7 +13,8 @@ import { BOARD_DELETE_WARNING } from '../consts/strings';
 
 export default function BoardItem({ boardInfo }) {
   const { userProfile } = useAuth();
-  const { links, deleteBoard } = useData();
+  const { links, deleteBoard, editBoardState, editBoard, updateBoard } =
+    useData();
   const navigate = useNavigate();
   let location = useLocation();
 
@@ -42,6 +43,23 @@ export default function BoardItem({ boardInfo }) {
     if (!window.confirm(BOARD_DELETE_WARNING)) return;
     deleteBoard({ params: { id: boardInfo.board_id } });
   };
+
+  // Favorite
+  const handleFavoriteToggle = (e) => {
+    e.stopPropagation();
+    if (editBoardState.loading) return;
+    const data = {
+      is_bookmarked: !boardInfo.is_bookmarked,
+    };
+    editBoard({ params: { id: boardInfo.board_id }, data });
+  };
+
+  useEffect(() => {
+    if (editBoardState.loading || !editBoardState.res) return;
+    const updatedBoardInfo = editBoardState.res.data;
+    updateBoard(updatedBoardInfo);
+    // eslint-disable-next-line
+  }, [editBoardState]);
 
   const boardFloatingMenu = (
     <FloatingMenu
@@ -154,6 +172,7 @@ export default function BoardItem({ boardInfo }) {
               width: '25px',
               fontSize: '1.3rem',
             }}
+            onClick={handleFavoriteToggle}
           />
         </div>
       </BoardItemContainer>

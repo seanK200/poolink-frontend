@@ -403,7 +403,9 @@ export default function DataProvider({ children }) {
   //   // eslint-disable-next-line
   // }, [userProfile, isRefreshTokenValid]);
 
+  const [editBoardState, editBoard] = useFetch('PATCH', '/boards/:id/');
   const [deleteBoardState, deleteBoard] = useFetch('DELETE', '/boards/:id/');
+
   const [deleteLinkState, deleteLink] = useFetch('DELETE', '/links/:id/');
 
   const value = {
@@ -429,6 +431,8 @@ export default function DataProvider({ children }) {
     setRouteModalSize,
     getDefaultBoardColor,
     updateBoard,
+    editBoardState,
+    editBoard,
     deleteBoardState,
     deleteBoard,
     deleteLinkState,
