@@ -6,25 +6,30 @@ import { useData } from '../../contexts/DataProvider';
 export default function ModalHeader({
   heading,
   headerType,
+  hideClose,
   onModalClose: handleModalClose,
 }) {
   const { handleRouteModalClose } = useData();
   const handleCloseClick = () => {
-    if (typeof handleModalClose === 'function') handleModalClose();
-    handleRouteModalClose();
+    if (typeof handleModalClose === 'function') {
+      handleModalClose();
+    } else {
+      handleRouteModalClose();
+    }
   };
 
   return (
     <Container className={headerType}>
-      <Heading>{heading ? heading : ''}</Heading>
-      <XLg
-        style={{
-          cursor: 'pointer',
-          color: 'black',
-          fontSize: '1.4rem',
-        }}
-        onClick={handleCloseClick}
-      />
+      <Heading className={headerType}>{heading ? heading : ''}</Heading>
+      {!hideClose && (
+        <XLg
+          style={{
+            cursor: 'pointer',
+            color: 'black',
+          }}
+          onClick={handleCloseClick}
+        />
+      )}
     </Container>
   );
 }
@@ -35,12 +40,17 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  font-size: 1.4rem;
   &.floating {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     background: none;
+  }
+  &.small {
+    padding: 16px;
+    font-size: 1.125rem;
   }
 `;
 
@@ -50,4 +60,7 @@ const Heading = styled.h1`
   line-height: 1em;
   padding: 0;
   margin: 0;
+  &.small {
+    font-size: 1.125rem;
+  }
 `;

@@ -113,7 +113,8 @@ export function useManualFetch(method, url, options = null) {
   } = options;
 
   const fetchData = async (
-    { data, params, query, useCache, retry } = {
+    { overrideUrl, data, params, query, useCache, retry } = {
+      overrideUrl: '',
       data: null,
       params: null,
       query: null,
@@ -124,7 +125,7 @@ export function useManualFetch(method, url, options = null) {
     if (fetchState.loading && !retry) {
       // stop if already making request with the same args
       // but, allow automatic retry after token refresh
-      const currentArgs = { data, params, query, useCache };
+      const currentArgs = { overrideUrl, data, params, query, useCache };
       const fetchStateArgs = fetchState.fetchArgs;
       if (deepEquals(currentArgs, fetchStateArgs)) {
         // console.log(`useFetch(${method}, ${url}): Prevent excessive retry.`);
@@ -134,7 +135,7 @@ export function useManualFetch(method, url, options = null) {
     try {
       setFetchState({
         loading: true,
-        fetchArgs: { data, params, query, useCache }, // store args in case of retry
+        fetchArgs: { overrideUrl, data, params, query, useCache }, // store args in case of retry
         accessToken: poolinkAccessToken.slice(), // a copy of the current token
         res: null,
         err: null,
@@ -215,7 +216,7 @@ export function useManualFetch(method, url, options = null) {
         // make request and wait for response
         const res = await axios.request({
           baseURL: API_BASE_URL,
-          url: getFinalUrl(url, params, query),
+          url: getFinalUrl(overrideUrl || url, params, query),
           method: method,
           data: data,
           headers: options.useToken

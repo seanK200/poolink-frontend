@@ -91,7 +91,7 @@ export default function AccountProfile() {
             userProfile?.profileImage ||
             process.env.PUBLIC_URL + '/assets/DefaultProfileImage.png'
           }
-          alt="Profile"
+          alt="My Profile"
           className={menuOpen ? 'menuOpen' : ''}
           ref={profileImgRef}
           onClick={handleProfileImgClick}

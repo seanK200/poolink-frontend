@@ -105,7 +105,12 @@ div.input-group {
   margin-bottom: 16px;
 }
 
-div.input-group.minimal {
+div.input-group.minimal,
+div.input-group.no-margin {
+  margin: 0;
+}
+
+div.input-group.no-margin input {
   margin: 0;
 }
 

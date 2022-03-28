@@ -8,6 +8,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthProvider';
 import Emoji from '../../../components/utilites/Emoji';
 import { BOARD_DELETE_WARNING } from '../../../consts/strings';
+import useFetch from '../../../hooks/useFetch';
 
 export default function BoardRoute() {
   const { userProfile } = useAuth();
@@ -51,6 +52,22 @@ export default function BoardRoute() {
     // 버튼 이미지 바꾸기
 
     setHideLinkImage((prev) => !prev);
+  };
+
+  const [scrapBoardState, scrapBoard] = useFetch('POST', '/boards/scrap');
+  const [unscrapBoardState, unscrapBoard] = useFetch('POST', '/boards/scrap');
+  const handleShareScrapClick = () => {
+    if (isMyBoard) {
+      // share
+      navigate('share', { state: { backgroundLocation: location } });
+    } else {
+      // scrap
+      if (boardInfo.scrap?.includes(userProfile.userId)) {
+        unscrapBoard({ data: { scrap_boards: [boardInfo.board_id] } });
+      } else {
+        scrapBoard({ data: { board_to_scrap: boardInfo.board_id } });
+      }
+    }
   };
 
   useEffect(() => {
@@ -143,6 +160,7 @@ export default function BoardRoute() {
                   />
                 )
               }
+              onClick={handleShareScrapClick}
             >
               {isMyBoard ? '공유' : '스크랩하기'}
             </Button>

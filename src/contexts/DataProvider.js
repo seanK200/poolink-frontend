@@ -35,6 +35,8 @@ export default function DataProvider({ children }) {
   // data from servers
   const [boards, setBoards] = useState({});
   const [links, setLinks] = useState({});
+  const [notifications, setNotifications] = useState([]);
+  const [users, setUsers] = useState({});
   // const [categories, setCategories] = useState([]);
 
   // GET /boards/ (my boards)
@@ -57,6 +59,14 @@ export default function DataProvider({ children }) {
   // GET /links/ (explore)
   const [exploreLinkIds, setExploreLinkIds] = useState([]); // paginated (nested arrays)
   const [explorePaginationInfo, setExplorePaginationInfo] = useState({
+    count: 0,
+    previous: null,
+    current: 0,
+    next: null,
+  });
+
+  const [myNotiIds, setMyNotiIds] = useState([]);
+  const [myNotiPaginationInfo, setMyNotiPaginationInfo] = useState({
     count: 0,
     previous: null,
     current: 0,
@@ -101,6 +111,12 @@ export default function DataProvider({ children }) {
     const confirmMsg = MODAL_CLOSE_MESSAGE + ' ' + DATA_LOSS_WARNING;
     const confirmed = confirmBeforeClose ? window.confirm(confirmMsg) : true;
     if (confirmed) navigate(-1);
+  };
+
+  // NOTIFICATION MODAL
+  const [isNotiModalOpen, setNotiModalOpen] = useState(false);
+  const handleNotiModalClose = () => {
+    setNotiModalOpen(false);
   };
 
   // data updaters
@@ -301,6 +317,25 @@ export default function DataProvider({ children }) {
     [myBoardsPaginationInfo, sharedBoardsPaginationInfo]
   );
 
+  const updateNotifications = (processedNotifications) => {
+    setNotifications((prev) => {
+      const newNotifications = {};
+
+      return newNotifications;
+    });
+  };
+
+  const updateUsers = (userInfo) => {
+    setUsers((prev) => {
+      const newUsers = { ...prev };
+      newUsers[userInfo.user_id] = {
+        ...userInfo,
+        lastUpdate: new Date().getTime(),
+      };
+      return newUsers;
+    });
+  };
+
   // FETCHERS
   // FETCHER: My boards
   const [fetchMyBoardsState, fetchMyBoards] = useFetch('GET', '/boards/', {
@@ -451,20 +486,6 @@ export default function DataProvider({ children }) {
     // eslint-disable-next-line
   }, []);
 
-  // let isAtLandingPage = useMatch('/welcome/*');
-
-  // things to automatically do after login
-  // useEffect(() => {
-  //   if (
-  //     isUserProfileValid(userProfile) &&
-  //     isRefreshTokenValid &&
-  //     !isAtLandingPage
-  //   ) {
-  //     // fetchCategories();
-  //   }
-  //   // eslint-disable-next-line
-  // }, [userProfile, isRefreshTokenValid]);
-
   const [editBoardState, editBoard] = useFetch('PATCH', '/boards/:id/');
   const [deleteBoardState, deleteBoard] = useFetch('DELETE', '/boards/:id/');
   useEffect(() => {
@@ -495,13 +516,76 @@ export default function DataProvider({ children }) {
         sharedBoardsPaginationInfo.current
       );
     }
+    // eslint-disable-next-line
   }, [deleteBoardState]);
 
   const [deleteLinkState, deleteLink] = useFetch('DELETE', '/links/:id/');
 
+  // NOTIFICATIONS
+  const [fetchMyNotiState, fetchMyNotifications] = useFetch(
+    'GET',
+    '/users/:id/notification/',
+    { useCache: true }
+  );
+  useEffect(() => {
+    if (fetchMyNotiState.loading || !fetchMyNotiState.res) return;
+    const current = fetchMyNotiState.fetchArgs.query?.page || 1;
+    const { count, next, previous, results } = fetchMyNotiState.res.data;
+    setMyNotiPaginationInfo({ current, count, previous, next });
+
+    const currentTime = new Date().getTime();
+
+    const notiIds = [];
+    const processedNotifications = results.map((noti) => {
+      notiIds.push(noti.id);
+      return {
+        ...noti,
+        page: current,
+        lastUpdate: currentTime,
+      };
+    });
+
+    // store results
+    setMyNotiIds((prev) => {
+      // discard all pages later than the current one loading
+      // in case of out of order page fetch, check length first
+      const newMyNotiIds = prev.slice(
+        0,
+        current <= prev.length ? current : prev.length
+      );
+
+      // make sure that newMyNotiIds[current - 1] exists
+      while (newMyNotiIds.length < current) {
+        newMyNotiIds.push([]);
+      }
+
+      newMyNotiIds[current - 1] = notiIds;
+      return newMyNotiIds;
+    });
+
+    updateNotifications(processedNotifications);
+  }, [fetchMyNotiState]);
+
+  // USER INFORMATION
+  const [fetchUserState, fetchUserInfo] = useFetch('GET', '/users/:id/', {
+    useCache: true,
+  });
+  useEffect(() => {
+    if (fetchUserState.loading || !fetchUserState.res) return;
+    const userInfo = fetchUserState.res.data;
+    updateUsers(userInfo);
+  }, [fetchUserState]);
+
+  useEffect(() => {
+    if (!userProfile) return;
+    updateUsers(userProfile);
+  }, [userProfile]);
+
   const value = {
     boards,
     links,
+    notifications,
+    users,
     myBoardIds,
     sharedBoardIds,
     myBoardsPaginationInfo,
@@ -516,6 +600,10 @@ export default function DataProvider({ children }) {
     fetchExploreLinks,
     fetchBoardState,
     fetchBoard,
+    fetchUserState,
+    fetchUserInfo,
+    fetchMyNotiState,
+    fetchMyNotifications,
     windowSize,
     handleRouteModalClose,
     routeModalSize,
@@ -532,6 +620,9 @@ export default function DataProvider({ children }) {
     deleteLink,
     fetchMyBoardsRange,
     fetchSharedBoardsRange,
+    isNotiModalOpen,
+    setNotiModalOpen,
+    handleNotiModalClose,
   };
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

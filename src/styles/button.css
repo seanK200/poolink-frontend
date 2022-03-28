@@ -56,9 +56,16 @@ button:disabled {
 }
 
 button.minimal {
-  color: var(--color-primary);
   background-color: none;
   font-size: 1rem;
   font-weight: 400;
   height: 24px;
+}
+
+button.minimal.primary {
+  color: var(--color-primary);
+}
+
+button.minimal.danger {
+  color: var(--color-red);
 }

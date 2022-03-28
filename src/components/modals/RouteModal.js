@@ -13,7 +13,7 @@ export default function RouteModal({ headerType, children, ...rest }) {
       portalClassName="RouteModal__Portal"
       shouldCloseOnEsc={true}
       shouldCloseOnOverlayClick={true}
-      closeTimeoutMS={500}
+      closeTimeoutMS={150}
       {...rest}
     >
       {children}

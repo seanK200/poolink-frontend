@@ -20,9 +20,9 @@ import SettingsLayout from './routes/settings';
 import SettingsGeneralRoute from './routes/settings/general';
 import SignoutRoute from './routes/signout';
 import SignupLayout from './routes/signup';
-import SignupCategoryRoute from './routes/signup/category';
 import SignupInfoRoute from './routes/signup/info';
 import LandingPage from './routes/welcome';
+import ShareBoardRoute from './routes/board/$boardId/share';
 
 function App() {
   const { routeModalSize } = useData();
@@ -72,7 +72,6 @@ function App() {
         <Route path="signup" element={<SignupLayout />}>
           <Route index element={<Navigate to="info" />} />
           <Route path="info" element={<SignupInfoRoute />} />
-          <Route path="category" element={<SignupCategoryRoute />} />
         </Route>
         <Route path="signout" element={<SignoutRoute />} />
         <Route
@@ -99,10 +98,8 @@ function App() {
             path="board/new"
             element={<AddBoardRoute isRouteModalOpen />}
           />
-          <Route
-            path="board/:boardId/edit"
-            element={<EditBoardRoute isRouteModalOpen />}
-          />
+          <Route path="board/:boardId/edit" element={<EditBoardRoute />} />
+          <Route path="board/:boardId/share" element={<ShareBoardRoute />} />
           <Route
             path="*"
             element={

@@ -24,6 +24,10 @@
   --color-red: #e95751;
 }
 
+html {
+  font-size: 16px;
+}
+
 body {
   margin: 0;
   width: 100vw;
@@ -33,7 +37,6 @@ body {
   font-family: Pretendard, Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
 }
 
 code {

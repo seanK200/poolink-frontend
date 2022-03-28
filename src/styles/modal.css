@@ -1,6 +1,6 @@
 .ReactModal__Overlay {
   opacity: 0;
-  transition: opacity 500ms ease-in-out;
+  transition: opacity 150ms ease-in-out;
 }
 
 .ReactModal__Overlay--after-open {
@@ -12,19 +12,12 @@
 }
 
 .ReactModal__Content {
-  transform: scale(0.5, 0.5);
-  transition: transform 500ms ease-in-out;
-}
-
-.ReactModal__Content--after-open {
+  transition: transform 150ms ease-in-out;
   transform: scale(1, 1);
 }
 
-.ReactModal__Content--before-close {
-  transform: translate(-50%, -50%) scale(0.5, 0.5);
-}
-
-.RouteModal__Portal {
+.RouteModal__Portal,
+.NotiModal__Portal {
   position: relative;
 }
 
@@ -67,6 +60,30 @@
 .RouteModal__Content-container.fullscreen {
   width: calc(100vw - 160px);
   height: calc(100vh - 160px);
+}
+
+.NotiModal__Content {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  width: 384px;
+  height: 400px;
+  outline: none;
+  border-radius: 10px;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  z-index: 99;
+}
+
+.NotiModal__Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 98;
 }
 
 @media only screen and (max-width: 680px) {
